@@ -1,13 +1,4 @@
-export default interface Config {
-    includeHeadings: boolean;
-    includeCaptions: boolean;
-    includeCodeBlocks: boolean;
-    includeTables: boolean;
-}
+import { Block } from "../notion/blocks";
 
-export const DefaultConfig: Config = {
-    includeHeadings: true,
-    includeCaptions: false,
-    includeCodeBlocks: false,
-    includeTables: true,
-};
+const DEFAULT_INCLUDED_BLOCKS = [Block.Heading, Block.Table, Block.Text];
+export default DEFAULT_INCLUDED_BLOCKS;

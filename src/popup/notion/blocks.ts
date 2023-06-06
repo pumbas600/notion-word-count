@@ -1,12 +1,14 @@
 import { ValuesOf, Maybe } from "../../types";
 
-const Block = {
+export const Block = {
     Heading: 'heading',
     Caption: 'caption',
     Code: 'code',
     Table: 'table',
     Text: 'text',
 } as const;
+
+export type Block = ValuesOf<typeof Block>;
 
 export function determineBlockFromClasses(classes: string[]): Maybe<Block> {
     for (const className of classes) {
@@ -19,6 +21,3 @@ export function determineBlockFromClasses(classes: string[]): Maybe<Block> {
     
     return undefined;
 }
-
-export type Block = ValuesOf<typeof Block>;
-export default Block;
