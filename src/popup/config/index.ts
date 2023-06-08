@@ -1,4 +1,4 @@
 import { Block } from "../notion/blocks";
 
-const DEFAULT_INCLUDED_BLOCKS = [Block.Heading, Block.Table, Block.Text];
-export default DEFAULT_INCLUDED_BLOCKS;
+const DEFAULT_EXCLUDED_BLOCKS = [Block.Code, Block.Caption];
+export default DEFAULT_EXCLUDED_BLOCKS;
