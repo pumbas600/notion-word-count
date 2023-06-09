@@ -1,5 +1,5 @@
 import { Maybe } from '../types';
-import { Block, determineBlockFromClasses } from './notion/blocks';
+import { Block, blockFromClasses } from './notion/blocks';
 
 const NOTION_PAGE_ROOT_CLASS = 'notion-page-content';
 let pageRoot: Maybe<Element> = undefined;
@@ -21,7 +21,7 @@ function getPageRoot(): Element {
 
 function getPageBlockElements(): BlockElementPair[] {
   const pageRoot = getPageRoot();
-  return Array.of(...pageRoot.children).map((element) => [element, determineBlockFromClasses(element.classList)]);
+  return Array.of(...pageRoot.children).map((element) => [element, blockFromClasses(element.classList)]);
 }
 
 function countTextNodeWords(textNode: ChildNode): number {
@@ -34,10 +34,10 @@ function countTextNodeWords(textNode: ChildNode): number {
   return value.split(/\s+/g).length;
 }
 
-function countWords(blockElement: HTMLDivElement, block: Block): number {
+function countWords([element, block]: BlockElementPair): number {
   let wordCount = 0;
 
-  const nodesStack: ChildNode[] = [blockElement];
+  const nodesStack: ChildNode[] = [element];
 
   while (nodesStack.length !== 0) {
     const node = nodesStack.pop()!;
@@ -49,4 +49,11 @@ function countWords(blockElement: HTMLDivElement, block: Block): number {
   }
 
   return wordCount;
+}
+
+function countWordsInPage(excludedBlocks: Block[]): number {
+  return getPageBlockElements()
+    .filter(([_, block]) => block === undefined || !excludedBlocks.includes(block))
+    .map(countWords)
+    .reduce((a, b) => a + b, 0);
 }
