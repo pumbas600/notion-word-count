@@ -2,9 +2,16 @@ import { Maybe } from '../types';
 import { Block, blockFromClasses } from './notion/blocks';
 
 const NOTION_PAGE_ROOT_CLASS = 'notion-page-content';
+const NOTION_WORD_COUNT_ID = 'notion-word-count-label';
+
 let pageRoot: Maybe<Element> = undefined;
+let wordCountElement: Maybe<Element> = undefined;
 
 type BlockElementPair = [Element, Maybe<Block>];
+
+function attachWordCountLabel(): Element {
+  throw new Error('Function not implemented.');
+}
 
 function getPageRoot(): Element {
   if (pageRoot === undefined) {
@@ -17,6 +24,17 @@ function getPageRoot(): Element {
   }
 
   return pageRoot;
+}
+
+function getWordCountElement(): Element {
+  if (wordCountElement === undefined) {
+    wordCountElement = document.getElementById(NOTION_WORD_COUNT_ID) ?? undefined;
+    if (wordCountElement === undefined) {
+      wordCountElement = attachWordCountLabel();
+    }
+  }
+
+  return wordCountElement;
 }
 
 function getPageBlockElements(): BlockElementPair[] {
