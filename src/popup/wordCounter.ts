@@ -1,18 +1,19 @@
 import { Maybe } from "../types";
 import { Block } from "./notion/blocks";
 
+const NOTION_PAGE_ROOT_CLASS = 'notion-page-content';
 let pageRoot: Maybe<Element> = undefined;
 
 function getPageRoot() {
     if (pageRoot === undefined) {
-        const elements = document.getElementsByClassName('notion-page-content');
+        const elements = document.getElementsByClassName(NOTION_PAGE_ROOT_CLASS);
         if (elements.length !== 0) {
-            throw new Error(`Expected there to only be one 'notion-page-content' but found ${elements.length}`);
+            throw new Error(`Expected there to only be exactly one '${NOTION_PAGE_ROOT_CLASS}' but found ${elements.length}`);
         }
 
         pageRoot = elements[0];
     }
-    
+
     return pageRoot;
 }
 
