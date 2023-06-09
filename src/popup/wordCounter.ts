@@ -1,10 +1,12 @@
 import { Maybe } from "../types";
-import { Block } from "./notion/blocks";
+import { Block, determineBlockFromClasses } from "./notion/blocks";
 
 const NOTION_PAGE_ROOT_CLASS = 'notion-page-content';
 let pageRoot: Maybe<Element> = undefined;
 
-function getPageRoot() {
+type BlockElementPair = [Element, Maybe<Block>];
+
+function getPageRoot(): Element {
     if (pageRoot === undefined) {
         const elements = document.getElementsByClassName(NOTION_PAGE_ROOT_CLASS);
         if (elements.length !== 0) {
@@ -15,6 +17,12 @@ function getPageRoot() {
     }
 
     return pageRoot;
+}
+
+function getPageBlockElements(): BlockElementPair[] {
+    const pageRoot = getPageRoot();
+    return Array.of(...pageRoot.children).map((element) => 
+        [element, determineBlockFromClasses(element.classList)])
 }
 
 function countTextNodeWords(textNode: ChildNode): number {

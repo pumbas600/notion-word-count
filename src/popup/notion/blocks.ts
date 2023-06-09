@@ -10,7 +10,7 @@ export const Block = {
 
 export type Block = ValuesOf<typeof Block>;
 
-export function determineBlockFromClasses(classes: string[]): Maybe<Block> {
+export function determineBlockFromClasses(classes: DOMTokenList): Maybe<Block> {
     for (const className of classes) {
         if (!className.startsWith('notion') || !className.endsWith('block')) {
             continue;
