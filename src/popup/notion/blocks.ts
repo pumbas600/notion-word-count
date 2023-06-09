@@ -1,7 +1,7 @@
 import { ValuesOf, Maybe } from "../../types";
 
 export const Block = {
-    Heading: 'heading',
+    Heading: 'header',
     Caption: 'caption',
     Code: 'code',
     Table: 'table',
@@ -12,11 +12,27 @@ export type Block = ValuesOf<typeof Block>;
 
 export function determineBlockFromClasses(classes: string[]): Maybe<Block> {
     for (const className of classes) {
-        if (!className.endsWith('notion')) {
+        if (!className.startsWith('notion') || !className.endsWith('block')) {
             continue;
         }
 
-        // Determine block;
+        const blockNameStartIndex = className.indexOf('-') + 1;
+        const blockNameEndIndex = className.lastIndexOf('-');
+
+        if (blockNameStartIndex == -1 || blockNameEndIndex == -1) {
+            continue;
+        }
+
+        const blockName = className.substring(blockNameStartIndex, blockNameEndIndex);
+
+        // For now, group all of the headings together
+        if (blockName.endsWith(Block.Heading)) {
+            return Block.Heading;
+        }
+
+        if (blockName in Object.values(Block)) {
+            return blockName as Block;
+        }
     }
     
     return undefined;
