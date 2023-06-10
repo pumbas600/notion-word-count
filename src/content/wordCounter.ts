@@ -75,3 +75,5 @@ function countWordsInPage(excludedBlocks: Block[]): number {
     .map(countWords)
     .reduce((a, b) => a + b, 0);
 }
+
+console.log('Hello there!');
