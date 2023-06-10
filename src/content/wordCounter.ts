@@ -15,8 +15,7 @@ type BlockElementPair = [Element, Maybe<Block>];
 
 function createWordCountLabel(parent: HTMLElement): Element {
   const wordCountParent = document.createElement('div');
-  wordCountParent.style.cssText =
-    'position: absolute; z-index: 1000; right: 80px; bottom: 32px; white-space: nowrap; display: flex; align-items: center; justify-content: flex-end;';
+  wordCountParent.id = 'notion-word-count-label-parent';
 
   const wordCountLabel = document.createElement('div');
   wordCountLabel.id = NOTION_WORD_COUNT_ID;

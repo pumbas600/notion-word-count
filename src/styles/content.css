@@ -1,0 +1,14 @@
+#notion-word-count-label-parent {
+  position: absolute;
+  z-index: 1000;
+  right: 80px;
+  bottom: 26px;
+  white-space: nowrap;
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  background-color: inherit;
+  padding: 6px 12px;
+  border-top-left-radius: 3px;
+  border-bottom-left-radius: 3px;
+}
