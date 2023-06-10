@@ -1,7 +1,8 @@
 import { Maybe } from '../types';
-import { Block, blockFromClasses } from './notion/blocks';
+import { Block, DEFAULT_EXCLUDED_BLOCKS, blockFromClasses } from './notion/blocks';
 
 const NOTION_PAGE_ROOT_CLASS = 'notion-page-content';
+const NOTION_BREADCRUMB_CLASS = 'shadow-cursor-breadcrumb';
 const NOTION_WORD_COUNT_ID = 'notion-word-count-label';
 
 let pageRoot: Maybe<Element> = undefined;
@@ -10,7 +11,19 @@ let wordCountElement: Maybe<Element> = undefined;
 type BlockElementPair = [Element, Maybe<Block>];
 
 function attachWordCountLabel(): Element {
-  throw new Error('Function not implemented.');
+  const breadcrumb = document.getElementsByClassName(NOTION_BREADCRUMB_CLASS);
+  if (breadcrumb.length !== 1) {
+    throw new Error(
+      `Expected there to only be exactly one '${NOTION_BREADCRUMB_CLASS}' but found ${breadcrumb.length}`,
+    );
+  }
+
+  const wordCountLabel = document.createElement('div');
+  wordCountLabel.id = NOTION_WORD_COUNT_ID;
+  wordCountLabel.style.position = 'absolute';
+  wordCountLabel.style.top = '40px';
+
+  return wordCountLabel;
 }
 
 function getPageRoot(): Element {
@@ -26,7 +39,7 @@ function getPageRoot(): Element {
   return pageRoot;
 }
 
-function getWordCountElement(): Element {
+function getWordCountLabel(): Element {
   if (wordCountElement === undefined) {
     wordCountElement = document.getElementById(NOTION_WORD_COUNT_ID) ?? undefined;
     if (wordCountElement === undefined) {
@@ -76,4 +89,20 @@ function countWordsInPage(excludedBlocks: Block[]): number {
     .reduce((a, b) => a + b, 0);
 }
 
-console.log('Hello there!');
+function updateWordCountLabel() {
+  try {
+    const wordCountLabel = getWordCountLabel();
+    const wordCount = countWordsInPage(DEFAULT_EXCLUDED_BLOCKS);
+    wordCountLabel.innerHTML = `Word count: ${wordCount}`;
+    console.log('wordCount', wordCount);
+  } catch (e) {
+    console.error(e);
+  }
+}
+
+function main(): void {
+  updateWordCountLabel();
+  console.log('Hello there!');
+}
+
+main();
