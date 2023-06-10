@@ -88,7 +88,13 @@ function countWords([element, block]: BlockElementPair): number {
     if (node.nodeType == Node.TEXT_NODE) {
       wordCount += countTextNodeWords(node);
     } else {
-      nodesStack.push(...node.childNodes);
+      for (const child of node.childNodes) {
+        // Absolute elements seem to be UI elements that should be ignored
+        if (child instanceof HTMLElement && child.style.position === 'absolute') {
+          continue;
+        }
+        nodesStack.push(child);
+      }
     }
   }
 
