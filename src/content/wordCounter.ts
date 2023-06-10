@@ -13,6 +13,14 @@ let previousWordCount = -1;
 
 type BlockElementPair = [Element, Maybe<Block>];
 
+function createWordCountLabel(): Element {
+  const wordCountLabel = document.createElement('div');
+  wordCountLabel.id = NOTION_WORD_COUNT_ID;
+  wordCountLabel.style.position = 'absolute';
+  wordCountLabel.style.top = '40px';
+  return wordCountLabel;
+}
+
 function attachWordCountLabel(): Maybe<Element> {
   const breadcrumbs = document.getElementsByClassName(NOTION_BREADCRUMB_CLASS);
   if (breadcrumbs.length !== 1) {
@@ -26,10 +34,7 @@ function attachWordCountLabel(): Maybe<Element> {
   }
 
   lastWarned = false;
-  const wordCountLabel = document.createElement('div');
-  wordCountLabel.id = NOTION_WORD_COUNT_ID;
-  wordCountLabel.style.position = 'absolute';
-  wordCountLabel.style.top = '40px';
+  const wordCountLabel = createWordCountLabel();
   breadcrumbs[0].insertBefore(wordCountLabel, breadcrumbs[0].firstChild);
 
   return wordCountLabel;
