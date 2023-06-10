@@ -2,7 +2,7 @@ import { Maybe } from '../types';
 import { Block, DEFAULT_EXCLUDED_BLOCKS, blockFromClasses } from './notion/blocks';
 
 const NOTION_PAGE_ROOT_CLASS = 'notion-page-content';
-const NOTION_BREADCRUMB_CLASS = 'shadow-cursor-breadcrumb';
+const NOTION_WORD_COUNT_PARENT = 'notion-app-inner';
 const NOTION_WORD_COUNT_ID = 'notion-word-count-label';
 
 let interval: Maybe<NodeJS.Timer> = undefined;
@@ -13,31 +13,34 @@ let previousWordCount = -1;
 
 type BlockElementPair = [Element, Maybe<Block>];
 
-function createWordCountLabel(): Element {
+function createWordCountLabel(parent: HTMLElement): Element {
+  const wordCountParent = document.createElement('div');
+  wordCountParent.style.cssText =
+    'position: absolute; z-index: 1000; right: 80px; bottom: 32px; white-space: nowrap; display: flex; align-items: center; justify-content: flex-end;';
+
   const wordCountLabel = document.createElement('div');
   wordCountLabel.id = NOTION_WORD_COUNT_ID;
-  wordCountLabel.style.position = 'absolute';
-  wordCountLabel.style.top = '40px';
+
+  wordCountParent.appendChild(wordCountLabel);
+  parent.insertBefore(wordCountParent, parent.firstChild);
   return wordCountLabel;
 }
 
 function attachWordCountLabel(): Maybe<Element> {
-  const breadcrumbs = document.getElementsByClassName(NOTION_BREADCRUMB_CLASS);
-  if (breadcrumbs.length !== 1) {
+  const helpButtons = document.getElementsByClassName(NOTION_WORD_COUNT_PARENT);
+  if (helpButtons.length !== 1) {
     if (!lastWarned) {
       lastWarned = true;
       console.warn(
-        `Expected there to only be exactly one '${NOTION_BREADCRUMB_CLASS}' but found ${breadcrumbs.length}`,
+        `Expected there to only be exactly one '${NOTION_WORD_COUNT_PARENT}' but found ${helpButtons.length}`,
       );
     }
     return undefined;
   }
 
   lastWarned = false;
-  const wordCountLabel = createWordCountLabel();
-  breadcrumbs[0].insertBefore(wordCountLabel, breadcrumbs[0].firstChild);
-
-  return wordCountLabel;
+  const helpButton = helpButtons[0] as HTMLElement;
+  return createWordCountLabel(helpButton);
 }
 
 function getPageRoot(): Maybe<Element> {
@@ -123,7 +126,7 @@ function countWordsInPage(excludedBlocks: Block[]): number {
 function updateWordCountLabel() {
   const wordCountLabel = getWordCountLabel();
   if (wordCountLabel !== undefined) {
-    const wordCount = countWordsInPage(DEFAULT_EXCLUDED_BLOCKS);
+    const wordCount = countWordsInPage([]);
     if (previousWordCount !== wordCount) {
       wordCountLabel.innerHTML = `Word count: ${wordCount}`;
       previousWordCount = wordCount;
@@ -153,7 +156,11 @@ function onUrlChange(onChange: VoidFunction): void {
 
 function cleanUp(): void {
   if (wordCountElement !== undefined) {
-    wordCountElement.remove();
+    if (wordCountElement.parentElement !== null) {
+      wordCountElement.parentElement.remove();
+    } else {
+      wordCountElement.remove();
+    }
   }
 
   pageRoot = undefined;
