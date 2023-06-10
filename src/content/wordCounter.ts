@@ -7,21 +7,29 @@ const NOTION_WORD_COUNT_ID = 'notion-word-count-label';
 
 let pageRoot: Maybe<Element> = undefined;
 let wordCountElement: Maybe<Element> = undefined;
+let lastWarned = false;
+let previousWordCount = -1;
 
 type BlockElementPair = [Element, Maybe<Block>];
 
-function attachWordCountLabel(): Element {
-  const breadcrumb = document.getElementsByClassName(NOTION_BREADCRUMB_CLASS);
-  if (breadcrumb.length !== 1) {
-    throw new Error(
-      `Expected there to only be exactly one '${NOTION_BREADCRUMB_CLASS}' but found ${breadcrumb.length}`,
-    );
+function attachWordCountLabel(): Maybe<Element> {
+  const breadcrumbs = document.getElementsByClassName(NOTION_BREADCRUMB_CLASS);
+  if (breadcrumbs.length !== 1) {
+    if (!lastWarned) {
+      lastWarned = true;
+      console.warn(
+        `Expected there to only be exactly one '${NOTION_BREADCRUMB_CLASS}' but found ${breadcrumbs.length}`,
+      );
+    }
+    return undefined;
   }
 
+  lastWarned = false;
   const wordCountLabel = document.createElement('div');
   wordCountLabel.id = NOTION_WORD_COUNT_ID;
   wordCountLabel.style.position = 'absolute';
   wordCountLabel.style.top = '40px';
+  breadcrumbs[0].insertBefore(wordCountLabel, breadcrumbs[0].firstChild);
 
   return wordCountLabel;
 }
@@ -29,8 +37,8 @@ function attachWordCountLabel(): Element {
 function getPageRoot(): Element {
   if (pageRoot === undefined) {
     const elements = document.getElementsByClassName(NOTION_PAGE_ROOT_CLASS);
-    if (elements.length !== 0) {
-      throw new Error(`Expected there to only be exactly one '${NOTION_PAGE_ROOT_CLASS}' but found ${elements.length}`);
+    if (elements.length !== 1) {
+      throw new Error(`Expected there to be exactly one '${NOTION_PAGE_ROOT_CLASS}' but found ${elements.length}`);
     }
 
     pageRoot = elements[0];
@@ -39,7 +47,7 @@ function getPageRoot(): Element {
   return pageRoot;
 }
 
-function getWordCountLabel(): Element {
+function getWordCountLabel(): Maybe<Element> {
   if (wordCountElement === undefined) {
     wordCountElement = document.getElementById(NOTION_WORD_COUNT_ID) ?? undefined;
     if (wordCountElement === undefined) {
@@ -58,11 +66,16 @@ function getPageBlockElements(): BlockElementPair[] {
 function countTextNodeWords(textNode: ChildNode): number {
   const value = textNode.nodeValue;
 
-  if (!value || value.trim().length === 0) {
+  if (!value) {
     return 0;
   }
 
-  return value.split(/\s+/g).length;
+  const trimmedValue = value.trim();
+  if (trimmedValue.length === 0) {
+    return 0;
+  }
+
+  return trimmedValue.split(/\s+/g).length;
 }
 
 function countWords([element, block]: BlockElementPair): number {
@@ -90,19 +103,18 @@ function countWordsInPage(excludedBlocks: Block[]): number {
 }
 
 function updateWordCountLabel() {
-  try {
-    const wordCountLabel = getWordCountLabel();
+  const wordCountLabel = getWordCountLabel();
+  if (wordCountLabel !== undefined) {
     const wordCount = countWordsInPage(DEFAULT_EXCLUDED_BLOCKS);
-    wordCountLabel.innerHTML = `Word count: ${wordCount}`;
-    console.log('wordCount', wordCount);
-  } catch (e) {
-    console.error(e);
+    if (previousWordCount !== wordCount) {
+      wordCountLabel.innerHTML = `Word count: ${wordCount}`;
+      previousWordCount = wordCount;
+    }
   }
 }
 
 function main(): void {
-  updateWordCountLabel();
-  console.log('Hello there!');
+  setInterval(updateWordCountLabel, 100);
 }
 
 main();
