@@ -2,6 +2,7 @@ const path = require('path');
 
 module.exports = {
   entry: './src/content/wordCounter.ts',
+  mode: 'production',
   module: {
     rules: [
       {

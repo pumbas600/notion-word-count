@@ -3,6 +3,7 @@
   "version": "1.0.0",
   "description": "Display the word count in a notion page",
   "scripts": {
+    "dev": "webpack --watch",
     "build": "webpack",
     "postbuild": "node scripts/build.mjs"
   },

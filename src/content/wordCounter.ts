@@ -119,8 +119,32 @@ function updateWordCountLabel() {
   }
 }
 
-function main(): void {
-  setInterval(updateWordCountLabel, 100);
+// Modified from: https://stackoverflow.com/questions/3522090/event-when-window-location-href-changes
+function onUrlChange(onChange: VoidFunction): void {
+  let oldHref = document.location.href;
+  const body = document.querySelector('body');
+  if (body === null) {
+    throw new Error('Expected html body tag to be defined');
+  }
+
+  const observer = new MutationObserver((mutations) => {
+    mutations.forEach(() => {
+      if (oldHref !== document.location.href) {
+        oldHref = document.location.href;
+        onChange();
+      }
+    });
+  });
+
+  observer.observe(body, { childList: true, subtree: true });
 }
 
-main();
+function main(): void {
+  onUrlChange(() => console.log('url changed'));
+  setInterval(updateWordCountLabel, 100);
+  console.log('main');
+}
+
+window.onload = () => {
+  main();
+};
