@@ -5,6 +5,7 @@ const NOTION_PAGE_ROOT_CLASS = 'notion-page-content';
 const NOTION_BREADCRUMB_CLASS = 'shadow-cursor-breadcrumb';
 const NOTION_WORD_COUNT_ID = 'notion-word-count-label';
 
+let interval: Maybe<NodeJS.Timer> = undefined;
 let pageRoot: Maybe<Element> = undefined;
 let wordCountElement: Maybe<Element> = undefined;
 let lastWarned = false;
@@ -139,12 +140,29 @@ function onUrlChange(onChange: VoidFunction): void {
   observer.observe(body, { childList: true, subtree: true });
 }
 
+function cleanUp(): void {
+  if (wordCountElement !== undefined) {
+    wordCountElement.remove();
+  }
+
+  pageRoot = undefined;
+  wordCountElement = undefined;
+  lastWarned = false;
+  previousWordCount = -1;
+}
+
 function main(): void {
-  onUrlChange(() => console.log('url changed'));
-  setInterval(updateWordCountLabel, 100);
+  interval = setInterval(updateWordCountLabel, 100);
+  onUrlChange(() => cleanUp());
   console.log('main');
 }
 
 window.onload = () => {
   main();
+};
+
+window.onunload = () => {
+  if (interval !== undefined) {
+    clearInterval(interval);
+  }
 };
