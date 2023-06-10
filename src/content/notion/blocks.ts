@@ -1,5 +1,7 @@
 import { ValuesOf, Maybe } from '../../types';
 
+export type Block = ValuesOf<typeof Block>;
+
 export const Block = {
   Heading: 'header',
   Caption: 'caption',
@@ -8,7 +10,7 @@ export const Block = {
   Text: 'text',
 } as const;
 
-export type Block = ValuesOf<typeof Block>;
+export const DEFAULT_EXCLUDED_BLOCKS = [Block.Code, Block.Caption];
 
 export function blockFromClasses(classes: DOMTokenList): Maybe<Block> {
   for (const className of classes) {
