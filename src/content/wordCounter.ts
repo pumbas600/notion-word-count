@@ -40,11 +40,13 @@ function attachWordCountLabel(): Maybe<Element> {
   return wordCountLabel;
 }
 
-function getPageRoot(): Element {
+function getPageRoot(): Maybe<Element> {
   if (pageRoot === undefined) {
     const elements = document.getElementsByClassName(NOTION_PAGE_ROOT_CLASS);
     if (elements.length !== 1) {
-      throw new Error(`Expected there to be exactly one '${NOTION_PAGE_ROOT_CLASS}' but found ${elements.length}`);
+      // This can sometimes be undefined after switching pages
+      console.warn(`Expected there to be exactly one '${NOTION_PAGE_ROOT_CLASS}' but found ${elements.length}`);
+      return undefined;
     }
 
     pageRoot = elements[0];
@@ -66,6 +68,10 @@ function getWordCountLabel(): Maybe<Element> {
 
 function getPageBlockElements(): BlockElementPair[] {
   const pageRoot = getPageRoot();
+  if (pageRoot === undefined) {
+    return [];
+  }
+
   return Array.of(...pageRoot.children).map((element) => [element, blockFromClasses(element.classList)]);
 }
 
