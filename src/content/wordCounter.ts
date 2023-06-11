@@ -42,13 +42,11 @@ function attachWordCountLabel(): Maybe<Element> {
   return createWordCountLabel(helpButton);
 }
 
-function getPageRoot(): Maybe<Element> {
+function getPageRoot(): Element {
   if (pageRoot === undefined) {
     const elements = document.getElementsByClassName(NOTION_PAGE_ROOT_CLASS);
     if (elements.length !== 1) {
-      // This can sometimes be undefined after switching pages
-      console.warn(`Expected there to be exactly one '${NOTION_PAGE_ROOT_CLASS}' but found ${elements.length}`);
-      return undefined;
+      throw new Error(`Expected there to be exactly one '${NOTION_PAGE_ROOT_CLASS}' but found ${elements.length}`);
     }
 
     pageRoot = elements[0];
@@ -112,10 +110,16 @@ function countWordsInPage(excludedBlocks: Block[]): number {
 function updateWordCountLabel() {
   const wordCountLabel = getWordCountLabel();
   if (wordCountLabel !== undefined) {
-    const wordCount = countWordsInPage([]);
-    if (previousWordCount !== wordCount) {
-      wordCountLabel.innerHTML = `Word count: ${wordCount}`;
-      previousWordCount = wordCount;
+    try {
+      const wordCount = countWordsInPage([]);
+      if (previousWordCount !== wordCount) {
+        wordCountLabel.innerHTML = `Word count: ${wordCount}`;
+        previousWordCount = wordCount;
+      }
+    } catch (err) {
+      // Page root may not exist if the page is still loading or you are on the redirection page
+      console.debug(err);
+      cleanUp();
     }
   }
 }
