@@ -1,5 +1,5 @@
 import { Maybe } from '../types';
-import { Block, DEFAULT_EXCLUDED_BLOCKS, blockFromClasses } from './notion/blocks';
+import { Block, blockFromClasses } from './notion/blocks';
 
 const NOTION_PAGE_ROOT_CLASS = 'notion-page-content';
 const NOTION_WORD_COUNT_PARENT = 'notion-app-inner';
