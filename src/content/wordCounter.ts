@@ -77,21 +77,6 @@ function getPageBlockElements(): BlockElementPair[] {
   return Array.of(...pageRoot.children).map((element) => [element, blockFromClasses(element.classList)]);
 }
 
-// function countTextNodeWords(textNode: ChildNode): number {
-//   const value = textNode.nodeValue;
-
-//   if (!value) {
-//     return 0;
-//   }
-
-//   const trimmedValue = value.trim();
-//   if (trimmedValue.length === 0) {
-//     return 0;
-//   }
-
-//   return trimmedValue.split(/\s+/g).length;
-// }
-
 function countWords(value: string): number {
   const trimmedValue = value.trim();
   if (trimmedValue.length === 0) {
