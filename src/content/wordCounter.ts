@@ -77,13 +77,22 @@ function getPageBlockElements(): BlockElementPair[] {
   return Array.of(...pageRoot.children).map((element) => [element, blockFromClasses(element.classList)]);
 }
 
-function countTextNodeWords(textNode: ChildNode): number {
-  const value = textNode.nodeValue;
+// function countTextNodeWords(textNode: ChildNode): number {
+//   const value = textNode.nodeValue;
 
-  if (!value) {
-    return 0;
-  }
+//   if (!value) {
+//     return 0;
+//   }
 
+//   const trimmedValue = value.trim();
+//   if (trimmedValue.length === 0) {
+//     return 0;
+//   }
+
+//   return trimmedValue.split(/\s+/g).length;
+// }
+
+function countWords(value: string): number {
   const trimmedValue = value.trim();
   if (trimmedValue.length === 0) {
     return 0;
@@ -92,24 +101,17 @@ function countTextNodeWords(textNode: ChildNode): number {
   return trimmedValue.split(/\s+/g).length;
 }
 
-function countWords([element, block]: BlockElementPair): number {
+function countTextNodeWords(textNode: HTMLElement): number {
+  // InnerText joins all the text together, ignoring any elements for inline styling (I.e. bold, italics)
+  return countWords(textNode.innerText);
+}
+
+function countWordsInBlock([element, block]: BlockElementPair): number {
   let wordCount = 0;
 
-  const nodesStack: ChildNode[] = [element];
-
-  while (nodesStack.length !== 0) {
-    const node = nodesStack.pop()!;
-    if (node.nodeType == Node.TEXT_NODE) {
-      wordCount += countTextNodeWords(node);
-    } else {
-      for (const child of node.childNodes) {
-        // Absolute elements seem to be UI elements that should be ignored
-        if (child instanceof HTMLElement && child.style.position === 'absolute') {
-          continue;
-        }
-        nodesStack.push(child);
-      }
-    }
+  const textNodes = element.querySelectorAll<HTMLElement>('[data-content-editable-leaf="true"]');
+  for (const textNode of textNodes) {
+    wordCount += countTextNodeWords(textNode);
   }
 
   return wordCount;
@@ -118,7 +120,7 @@ function countWords([element, block]: BlockElementPair): number {
 function countWordsInPage(excludedBlocks: Block[]): number {
   return getPageBlockElements()
     .filter(([_, block]) => block === undefined || !excludedBlocks.includes(block))
-    .map(countWords)
+    .map(countWordsInBlock)
     .reduce((a, b) => a + b, 0);
 }
 

@@ -1,6 +1,6 @@
 #notion-word-count-label-parent {
   position: absolute;
-  z-index: 1000;
+  z-index: 2;
   right: 80px;
   bottom: 26px;
   white-space: nowrap;
