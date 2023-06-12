@@ -49,11 +49,12 @@ function attachWordCountLabel(): Maybe<Element> {
   return createWordCountLabel(helpButton);
 }
 
-function getPageRoot(): Element {
+function getPageRoot(): Maybe<Element> {
   if (pageRoot === undefined) {
     const elements = document.getElementsByClassName(NOTION_PAGE_ROOT_CLASS);
     if (elements.length !== 1) {
-      throw new Error(`Expected there to be exactly one '${NOTION_PAGE_ROOT_CLASS}' but found ${elements.length}`);
+      // This could be caused by the page still loading or the user being redirected.
+      return undefined;
     }
 
     pageRoot = elements[0];
@@ -73,8 +74,7 @@ function getWordCountLabel(): Maybe<Element> {
   return wordCountElement;
 }
 
-function getPageBlockElements(): BlockElementPair[] {
-  const pageRoot = getPageRoot();
+function getPageBlockElements(pageRoot: Maybe<Element>): BlockElementPair[] {
   if (pageRoot === undefined) {
     return [];
   }
@@ -107,8 +107,8 @@ function countWordsInBlock([element, block]: BlockElementPair): number {
   return wordCount;
 }
 
-function countWordsInPage(excludedBlocks: Block[]): number {
-  return getPageBlockElements()
+function countWordsInPage(pageRoot: Maybe<Element>, excludedBlocks: Block[]): number {
+  return getPageBlockElements(pageRoot)
     .filter(([_, block]) => block === undefined || !excludedBlocks.includes(block))
     .map(countWordsInBlock)
     .reduce((a, b) => a + b, 0);
@@ -133,30 +133,25 @@ function wordCountChanged(newWordCount: WordCount): boolean {
 }
 
 function updateWordCountLabel() {
+  const pageRoot = getPageRoot();
   const wordCountLabel = getWordCountLabel();
-  if (wordCountLabel !== undefined) {
-    try {
-      const wordCount: WordCount = {
-        total: countWordsInPage([]),
-        selected: countSelectedWords(),
-      };
+  if (pageRoot !== undefined && wordCountLabel !== undefined) {
+    const wordCount: WordCount = {
+      total: countWordsInPage(pageRoot, []),
+      selected: countSelectedWords(),
+    };
 
-      if (wordCount.selected !== 0) {
-        if (wordCount.selected !== previousWordCount.selected) {
-          wordCountLabel.innerHTML = `${wordCount.selected} words selected`;
-        }
-      } else if (wordCount.total !== previousWordCount.total) {
-        wordCountLabel.innerHTML = `${wordCount.total} words`;
+    if (wordCount.selected !== 0) {
+      if (wordCount.selected !== previousWordCount.selected) {
+        wordCountLabel.innerHTML = `${wordCount.selected} words selected`;
       }
-
-      if (wordCountChanged(wordCount)) {
-        previousWordCount = wordCount;
-      }
-    } catch (err) {
-      // Page root may not exist if the page is still loading or you are on the redirection page
-      console.debug(err);
-      cleanUp();
+    } else if (wordCount.total !== previousWordCount.total) {
+      wordCountLabel.innerHTML = `${wordCount.total} words`;
     }
+
+    previousWordCount = wordCount;
+  } else {
+    cleanUp();
   }
 }
 
