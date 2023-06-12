@@ -1,15 +1,16 @@
 #notion-word-count-label-parent {
   position: absolute;
   z-index: 2;
-  padding: 6px 12px;
-  right: 45px;
-  padding-right: 30px;
-  bottom: 26px;
+  padding: 8px 16px;
+  right: 80px;
+  bottom: 27px;
   white-space: nowrap;
   display: flex;
   align-items: center;
   justify-content: flex-end;
   background-color: inherit;
   border-radius: 3px;
+  line-height: 14px;
   font-size: 14px;
+  box-shadow: rgba(15, 15, 15, 0.1) 0px 0px 0px 1px, rgba(15, 15, 15, 0.1) 0px 2px 4px;
 }
