@@ -148,6 +148,10 @@ function updateWordCountLabel() {
       } else if (wordCount.total !== previousWordCount.total) {
         wordCountLabel.innerHTML = `${wordCount.total} words`;
       }
+
+      if (wordCountChanged(wordCount)) {
+        previousWordCount = wordCount;
+      }
     } catch (err) {
       // Page root may not exist if the page is still loading or you are on the redirection page
       console.debug(err);
