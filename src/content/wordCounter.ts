@@ -1,6 +1,12 @@
 import { Maybe } from '../types';
 import { Block, blockFromClasses } from './notion/blocks';
 
+type BlockElementPair = [Element, Maybe<Block>];
+interface WordCount {
+  total: number;
+  selected: number;
+}
+
 const NOTION_PAGE_ROOT_CLASS = 'notion-page-content';
 const NOTION_WORD_COUNT_PARENT = 'notion-app-inner';
 const NOTION_WORD_COUNT_ID = 'notion-word-count-label';
@@ -9,9 +15,10 @@ let interval: Maybe<NodeJS.Timer> = undefined;
 let pageRoot: Maybe<Element> = undefined;
 let wordCountElement: Maybe<Element> = undefined;
 let lastWarned = false;
-let previousWordCount = -1;
-
-type BlockElementPair = [Element, Maybe<Block>];
+let previousWordCount: WordCount = {
+  total: -1,
+  selected: -1,
+};
 
 function createWordCountLabel(parent: HTMLElement): Element {
   const wordCountParent = document.createElement('div');
@@ -107,13 +114,36 @@ function countWordsInPage(excludedBlocks: Block[]): number {
     .reduce((a, b) => a + b, 0);
 }
 
+function countSelectedWords(): number {
+  const selection = window.getSelection();
+  if (selection === null) {
+    return 0;
+  }
+
+  const selectedText = selection.toString().trim();
+  if (selectedText.length === 0) {
+    return 0;
+  }
+
+  return countWords(selectedText);
+}
+
+function wordCountChanged(newWordCount: WordCount): boolean {
+  return previousWordCount.total !== newWordCount.total || previousWordCount.selected !== newWordCount.selected;
+}
+
 function updateWordCountLabel() {
   const wordCountLabel = getWordCountLabel();
   if (wordCountLabel !== undefined) {
     try {
-      const wordCount = countWordsInPage([]);
-      if (previousWordCount !== wordCount) {
-        wordCountLabel.innerHTML = `Word count: ${wordCount}`;
+      const wordCount: WordCount = {
+        total: countWordsInPage([]),
+        selected: countSelectedWords(),
+      };
+
+      if (wordCountChanged(wordCount)) {
+        const selectedLabel = wordCount.selected > 0 ? ` (${wordCount.selected} selected)` : '';
+        wordCountLabel.innerHTML = `Word count: ${wordCount.total}${selectedLabel}`;
         previousWordCount = wordCount;
       }
     } catch (err) {
@@ -156,7 +186,10 @@ function cleanUp(): void {
   pageRoot = undefined;
   wordCountElement = undefined;
   lastWarned = false;
-  previousWordCount = -1;
+  previousWordCount = {
+    total: -1,
+    selected: -1,
+  };
 }
 
 function main(): void {
