@@ -141,10 +141,12 @@ function updateWordCountLabel() {
         selected: countSelectedWords(),
       };
 
-      if (wordCountChanged(wordCount)) {
-        const selectedLabel = wordCount.selected > 0 ? ` (${wordCount.selected} selected)` : '';
-        wordCountLabel.innerHTML = `Word count: ${wordCount.total}${selectedLabel}`;
-        previousWordCount = wordCount;
+      if (wordCount.selected !== 0) {
+        if (wordCount.selected !== previousWordCount.selected) {
+          wordCountLabel.innerHTML = `${wordCount.selected} words selected`;
+        }
+      } else if (wordCount.total !== previousWordCount.total) {
+        wordCountLabel.innerHTML = `${wordCount.total} words`;
       }
     } catch (err) {
       // Page root may not exist if the page is still loading or you are on the redirection page
