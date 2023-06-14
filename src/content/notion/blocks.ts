@@ -10,7 +10,12 @@ export const Block = {
   Text: 'text',
 } as const;
 
+const BlockValues: string[] = Object.values(Block);
 export const DEFAULT_EXCLUDED_BLOCKS = [Block.Code, Block.Caption];
+
+export function isBlock(blockName: string): blockName is Block {
+  return BlockValues.includes(blockName);
+}
 
 export function blockFromClasses(classes: DOMTokenList): Maybe<Block> {
   for (const className of classes) {
@@ -32,8 +37,8 @@ export function blockFromClasses(classes: DOMTokenList): Maybe<Block> {
       return Block.Heading;
     }
 
-    if (blockName in Object.values(Block)) {
-      return blockName as Block;
+    if (isBlock(blockName)) {
+      return blockName;
     }
   }
 
