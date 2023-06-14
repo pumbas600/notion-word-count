@@ -2,10 +2,6 @@ import { Maybe } from '../types';
 import { Block, blockFromClasses } from './notion/blocks';
 
 type BlockElementPair = [Element, Maybe<Block>];
-interface WordCount {
-  total: number;
-  selected: number;
-}
 
 const NOTION_PAGE_ROOT_CLASS = 'notion-page-content';
 const NOTION_WORD_COUNT_PARENT = 'notion-app-inner';
@@ -15,10 +11,6 @@ let interval: Maybe<NodeJS.Timer> = undefined;
 let pageRoot: Maybe<Element> = undefined;
 let wordCountElement: Maybe<Element> = undefined;
 let lastWarned = false;
-let previousWordCount: WordCount = {
-  total: -1,
-  selected: -1,
-};
 
 function createWordCountLabel(parent: HTMLElement): Element {
   const wordCountParent = document.createElement('div');
@@ -96,7 +88,7 @@ function countTextNodeWords(textNode: HTMLElement): number {
   return countWords(textNode.innerText);
 }
 
-function countWordsInBlock([element, block]: BlockElementPair): number {
+function countWordsInBlock([element, _block]: BlockElementPair): number {
   let wordCount = 0;
 
   const textNodes = element.querySelectorAll<HTMLElement>('[data-content-editable-leaf="true"]');
@@ -128,30 +120,22 @@ function countSelectedWords(): number {
   return countWords(selectedText);
 }
 
-function wordCountChanged(newWordCount: WordCount): boolean {
-  return previousWordCount.total !== newWordCount.total || previousWordCount.selected !== newWordCount.selected;
-}
-
-function updateWordCountLabel() {
+function updateWordCountLabel(): void {
   const pageRoot = getPageRoot();
   const wordCountLabel = getWordCountLabel();
-  if (pageRoot !== undefined && wordCountLabel !== undefined) {
-    const wordCount: WordCount = {
-      total: countWordsInPage(pageRoot, []),
-      selected: countSelectedWords(),
-    };
 
-    if (wordCount.selected !== 0) {
-      if (wordCount.selected !== previousWordCount.selected) {
-        wordCountLabel.innerHTML = `${wordCount.selected} words selected`;
-      }
-    } else if (wordCount.total !== previousWordCount.total) {
-      wordCountLabel.innerHTML = `${wordCount.total} words`;
-    }
-
-    previousWordCount = wordCount;
-  } else {
+  if (pageRoot === undefined || wordCountLabel === undefined) {
     cleanUp();
+    return;
+  }
+
+  const totalWordCount = countWordsInPage(pageRoot, []);
+  const selectedWordCount = countSelectedWords();
+
+  const label = selectedWordCount !== 0 ? `${selectedWordCount} words selected` : `${totalWordCount} words`;
+  if (wordCountLabel.innerHTML !== label) {
+    // Only update the DOM if the label has changed
+    wordCountLabel.innerHTML = label;
   }
 }
 
@@ -187,16 +171,11 @@ function cleanUp(): void {
   pageRoot = undefined;
   wordCountElement = undefined;
   lastWarned = false;
-  previousWordCount = {
-    total: -1,
-    selected: -1,
-  };
 }
 
 function main(): void {
   interval = setInterval(updateWordCountLabel, 100);
   onUrlChange(() => cleanUp());
-  console.log('main');
 }
 
 window.onload = () => {
