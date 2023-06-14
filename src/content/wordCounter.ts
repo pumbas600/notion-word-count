@@ -129,7 +129,7 @@ function updateWordCountLabel(): void {
     return;
   }
 
-  const totalWordCount = countWordsInPage(pageRoot, []);
+  const totalWordCount = countWordsInPage(pageRoot, [Block.Equation]);
   const selectedWordCount = countSelectedWords();
 
   const label = selectedWordCount !== 0 ? `${selectedWordCount} words selected` : `${totalWordCount} words`;

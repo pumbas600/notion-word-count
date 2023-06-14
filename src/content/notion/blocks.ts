@@ -4,10 +4,14 @@ export type Block = ValuesOf<typeof Block>;
 
 export const Block = {
   Heading: 'header',
+  SubHeading: 'sub_header',
+  SubSubHeading: 'sub_sub_header',
   Caption: 'caption',
   Code: 'code',
   Table: 'table',
   Text: 'text',
+  Equation: 'equation',
+  TodoList: 'to_do',
 } as const;
 
 const BlockValues: string[] = Object.values(Block);
@@ -31,12 +35,6 @@ export function blockFromClasses(classes: DOMTokenList): Maybe<Block> {
     }
 
     const blockName = className.substring(blockNameStartIndex, blockNameEndIndex);
-
-    // For now, group all of the headings together
-    if (blockName.endsWith(Block.Heading)) {
-      return Block.Heading;
-    }
-
     if (isBlock(blockName)) {
       return blockName;
     }
