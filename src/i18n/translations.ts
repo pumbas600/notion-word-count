@@ -1,11 +1,11 @@
 export type Translations = {
-  totalWords: string;
-  selectedWords: string;
+  'words.count.total': string;
+  'words.count.selected': string;
 };
 
 export const Translations: Record<string, Translations> = {
   en: {
-    totalWords: '{{count}} words',
-    selectedWords: '{{count}} words selected',
+    'words.count.total': '{{count}} words',
+    'words.count.selected': '{{count}} words selected',
   },
 } as const;

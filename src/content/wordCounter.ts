@@ -1,4 +1,4 @@
-import { TranslationFunc } from '../i18n';
+import { buildTranslationFunction } from '../i18n';
 import { Maybe } from '../types';
 import { Block, blockFromClasses } from './notion/blocks';
 
@@ -8,12 +8,11 @@ const NOTION_PAGE_ROOT_CLASS = 'notion-page-content';
 const NOTION_WORD_COUNT_PARENT = 'notion-app-inner';
 const NOTION_WORD_COUNT_ID = 'notion-word-count-label';
 
+const translate = buildTranslationFunction();
+
 let interval: Maybe<NodeJS.Timer> = undefined;
 let pageRoot: Maybe<Element> = undefined;
 let wordCountElement: Maybe<Element> = undefined;
-let translate: TranslationFunc = () => {
-  throw new Error('Translation function not set');
-};
 
 function createWordCountLabel(parent: HTMLElement): Element {
   const wordCountParent = document.createElement('div');
@@ -30,7 +29,7 @@ function createWordCountLabel(parent: HTMLElement): Element {
 function attachWordCountLabel(): Maybe<Element> {
   const parents = document.getElementsByClassName(NOTION_WORD_COUNT_PARENT);
   if (parents.length !== 1) {
-    console.warn(`Expected there to only be exactly one '${NOTION_WORD_COUNT_PARENT}' but found ${parents.length}`);
+    // This could be caused by the page still loading or the user being redirected.
     return undefined;
   }
 
@@ -129,7 +128,11 @@ function updateWordCountLabel(): void {
   const totalWordCount = countWordsInPage(pageRoot, [Block.Equation]);
   const selectedWordCount = countSelectedWords();
 
-  const label = selectedWordCount !== 0 ? `${selectedWordCount} words selected` : `${totalWordCount} words`;
+  const label =
+    selectedWordCount !== 0
+      ? translate('words.count.selected', { count: selectedWordCount })
+      : translate('words.count.total', { count: totalWordCount });
+
   if (wordCountLabel.innerHTML !== label) {
     // Only update the DOM if the label has changed
     wordCountLabel.innerHTML = label;
