@@ -1,3 +1,4 @@
+import { TranslationFunc } from '../i18n';
 import { Maybe } from '../types';
 import { Block, blockFromClasses } from './notion/blocks';
 
@@ -10,7 +11,9 @@ const NOTION_WORD_COUNT_ID = 'notion-word-count-label';
 let interval: Maybe<NodeJS.Timer> = undefined;
 let pageRoot: Maybe<Element> = undefined;
 let wordCountElement: Maybe<Element> = undefined;
-let lastWarned = false;
+let translate: TranslationFunc = () => {
+  throw new Error('Translation function not set');
+};
 
 function createWordCountLabel(parent: HTMLElement): Element {
   const wordCountParent = document.createElement('div');
@@ -25,20 +28,14 @@ function createWordCountLabel(parent: HTMLElement): Element {
 }
 
 function attachWordCountLabel(): Maybe<Element> {
-  const helpButtons = document.getElementsByClassName(NOTION_WORD_COUNT_PARENT);
-  if (helpButtons.length !== 1) {
-    if (!lastWarned) {
-      lastWarned = true;
-      console.warn(
-        `Expected there to only be exactly one '${NOTION_WORD_COUNT_PARENT}' but found ${helpButtons.length}`,
-      );
-    }
+  const parents = document.getElementsByClassName(NOTION_WORD_COUNT_PARENT);
+  if (parents.length !== 1) {
+    console.warn(`Expected there to only be exactly one '${NOTION_WORD_COUNT_PARENT}' but found ${parents.length}`);
     return undefined;
   }
 
-  lastWarned = false;
-  const helpButton = helpButtons[0] as HTMLElement;
-  return createWordCountLabel(helpButton);
+  const parent = parents[0] as HTMLElement;
+  return createWordCountLabel(parent);
 }
 
 function getPageRoot(): Maybe<Element> {
@@ -170,7 +167,6 @@ function cleanUp(): void {
 
   pageRoot = undefined;
   wordCountElement = undefined;
-  lastWarned = false;
 }
 
 function main(): void {
