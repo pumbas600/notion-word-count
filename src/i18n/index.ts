@@ -1,3 +1,5 @@
+import { Translations } from './translations';
+
 /**
  * Retrieves a list of the user's primary languages, in order of preference, with 0 being the highest
  * preference. This does not contain the region suffix or duplicates.
@@ -25,4 +27,14 @@ function getPrimaryLanguageCode(language: string): string {
   }
 
   return language;
+}
+
+/**
+ * Returns whether the given language has translations available in this extension.
+ *
+ * @param language The primary language code, e.g. "en"
+ * @returns Whether the language is supported
+ */
+function isLanguageSupported(language: string): boolean {
+  return language in Translations;
 }
