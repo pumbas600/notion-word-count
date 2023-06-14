@@ -2,18 +2,37 @@ import { Translations } from './translations';
 
 export type TranslationFunc = (key: keyof Translations, values?: Record<string, string | number>) => string;
 
-function translate(language: string, key: keyof Translations, values?: Record<string, string | number>): string {
-  let translation = Translations[language][key];
+/**
+ * Builds a translation function that determines the best language to display the text in based on the user's
+ * preferred languages. This is then used internally within the returned translation function whenever a value
+ * is translated.
+ *
+ * @returns The constructed translation function
+ */
+export function buildTranslationFunction(): TranslationFunc {
+  const language = getUserDisplayLanguage();
 
-  if (values !== undefined) {
-    Object.entries(values).forEach(([key, value]) => {
-      translation = translation.replace(`{{${key}}}`, translateValue(language, value));
-    });
-  }
+  return (key: keyof Translations, values?: Record<string, string | number>): string => {
+    let translation = Translations[language][key];
 
-  return translation;
+    if (values !== undefined) {
+      Object.entries(values).forEach(([key, value]) => {
+        translation = translation.replace(`{{${key}}}`, translateValue(language, value));
+      });
+    }
+
+    return translation;
+  };
 }
 
+/**
+ * Translates a value into the given language. If the value is a string, it is returned as-is. If the value
+ * is a number than it is converted to a string using `toLocaleString` with the given language.
+ *
+ * @param language The language to translate the value into
+ * @param value The value to translate
+ * @returns The translated value
+ */
 function translateValue(language: string, value: string | number): string {
   if (typeof value === 'string') {
     return value;
