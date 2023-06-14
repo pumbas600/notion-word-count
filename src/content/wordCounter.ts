@@ -3,6 +3,10 @@ import { Maybe } from '../types';
 import { Block, blockFromClasses } from './notion/blocks';
 
 type BlockElementPair = [Element, Maybe<Block>];
+type LabelContent = {
+  isSelected: boolean;
+  count: number;
+};
 
 const NOTION_PAGE_ROOT_CLASS = 'notion-page-content';
 const NOTION_WORD_COUNT_PARENT = 'notion-app-inner';
@@ -13,6 +17,7 @@ const translate = buildTranslationFunction();
 let interval: Maybe<NodeJS.Timer> = undefined;
 let pageRoot: Maybe<Element> = undefined;
 let wordCountElement: Maybe<Element> = undefined;
+let previousLabelContent: Maybe<LabelContent> = undefined;
 
 function createWordCountLabel(parent: HTMLElement): Element {
   const wordCountParent = document.createElement('div');
@@ -116,6 +121,24 @@ function countSelectedWords(): number {
   return countWords(selectedText);
 }
 
+function setWordCountLabel(wordCountLabel: Element, labelContent: LabelContent) {
+  // Only update the DOM if the label has changed
+  if (
+    previousLabelContent !== undefined &&
+    previousLabelContent.isSelected === labelContent.isSelected &&
+    previousLabelContent.count === labelContent.count
+  ) {
+    return;
+  }
+
+  const label = labelContent.isSelected
+    ? translate('words.count.selected', { count: labelContent.count })
+    : translate('words.count.total', { count: labelContent.count });
+
+  wordCountLabel.innerHTML = label;
+  previousLabelContent = labelContent;
+}
+
 function updateWordCountLabel(): void {
   const pageRoot = getPageRoot();
   const wordCountLabel = getWordCountLabel();
@@ -128,15 +151,10 @@ function updateWordCountLabel(): void {
   const totalWordCount = countWordsInPage(pageRoot, [Block.Equation]);
   const selectedWordCount = countSelectedWords();
 
-  const label =
-    selectedWordCount !== 0
-      ? translate('words.count.selected', { count: selectedWordCount })
-      : translate('words.count.total', { count: totalWordCount });
+  const isSelected = selectedWordCount !== 0;
+  const count = isSelected ? selectedWordCount : totalWordCount;
 
-  if (wordCountLabel.innerHTML !== label) {
-    // Only update the DOM if the label has changed
-    wordCountLabel.innerHTML = label;
-  }
+  setWordCountLabel(wordCountLabel, { isSelected, count });
 }
 
 // Modified from: https://stackoverflow.com/questions/3522090/event-when-window-location-href-changes
@@ -170,6 +188,7 @@ function cleanUp(): void {
 
   pageRoot = undefined;
   wordCountElement = undefined;
+  previousLabelContent = undefined;
 }
 
 function main(): void {
