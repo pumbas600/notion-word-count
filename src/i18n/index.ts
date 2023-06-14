@@ -1,5 +1,26 @@
 import { Translations } from './translations';
 
+export type TranslationFunc = (key: keyof Translations, values?: Record<string, string | number>) => string;
+
+function translate(language: string, key: keyof Translations, values?: Record<string, string | number>): string {
+  let translation = Translations[language][key];
+
+  if (values !== undefined) {
+    Object.entries(values).forEach(([key, value]) => {
+      translation = translation.replace(`{{${key}}}`, translateValue(language, value));
+    });
+  }
+
+  return translation;
+}
+
+function translateValue(language: string, value: string | number): string {
+  if (typeof value === 'string') {
+    return value;
+  }
+  return value.toLocaleString(language);
+}
+
 /**
  * Finds the best language to display the text to the user in. This is the first language in the user's
  * preferred languages that is supported by this extension. If no languages are supported, English is

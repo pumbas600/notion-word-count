@@ -1,7 +1,7 @@
-export interface Translations {
+export type Translations = {
   totalWords: string;
   selectedWords: string;
-}
+};
 
 export const Translations: Record<string, Translations> = {
   en: {
