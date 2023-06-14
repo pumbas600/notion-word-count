@@ -11,6 +11,7 @@ export type TranslationFunc = (key: keyof Translations, values?: Record<string, 
  */
 export function buildTranslationFunction(): TranslationFunc {
   const language = getUserDisplayLanguage();
+  console.debug(`Using language ${language} for translations`);
 
   return (key: keyof Translations, values?: Record<string, string | number>): string => {
     let translation = Translations[language][key];

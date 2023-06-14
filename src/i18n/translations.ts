@@ -8,4 +8,8 @@ export const Translations: Record<string, Translations> = {
     'words.count.total': '{{count}} words',
     'words.count.selected': '{{count}} words selected',
   },
+  fr: {
+    'words.count.total': '{{count}} mots',
+    'words.count.selected': '{{count}} mots sélectionnés',
+  },
 } as const;
