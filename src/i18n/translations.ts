@@ -1,9 +1,9 @@
-export type Translations = {
+export type TranslationKeys = {
   'words.count.total': string;
   'words.count.selected': string;
 };
 
-export const Translations: Record<string, Translations> = {
+export const Translations: Record<string, TranslationKeys> = {
   en: {
     'words.count.total': '{{count}} words',
     'words.count.selected': '{{count}} words selected',
@@ -12,4 +12,4 @@ export const Translations: Record<string, Translations> = {
     'words.count.total': '{{count}} mots',
     'words.count.selected': '{{count}} mots sélectionnés',
   },
-} as const;
+};

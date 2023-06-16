@@ -1,6 +1,6 @@
-import { Translations } from './translations';
+import { TranslationKeys, Translations } from './translations';
 
-export type TranslationFunc = (key: keyof Translations, values?: Record<string, string | number>) => string;
+export type TranslationFunc = (key: keyof TranslationKeys, values?: Record<string, string | number>) => string;
 
 /**
  * Builds a translation function that determines the best language to display the text in based on the user's
@@ -13,7 +13,7 @@ export function buildTranslationFunction(): TranslationFunc {
   const language = getUserDisplayLanguage();
   console.debug(`Using language ${language} for translations`);
 
-  return (key: keyof Translations, values?: Record<string, string | number>): string => {
+  return (key: keyof TranslationKeys, values?: Record<string, string | number>): string => {
     let translation = Translations[language][key];
 
     if (values !== undefined) {
