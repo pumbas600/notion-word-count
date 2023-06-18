@@ -75,13 +75,17 @@ function getPageBlockElements(pageRoot: Maybe<Element>): BlockElementPair[] {
   return Array.of(...pageRoot.children).map((element) => [element, blockFromClasses(element.classList)]);
 }
 
+function isWord(value: string): boolean {
+  return value.length !== 0;
+}
+
 function countWords(value: string): number {
   const trimmedValue = value.trim();
   if (trimmedValue.length === 0) {
     return 0;
   }
 
-  return trimmedValue.split(/\s+/g).length;
+  return trimmedValue.split(/[\s\.]+/g).filter(isWord).length;
 }
 
 function countTextNodeWords(textNode: HTMLElement): number {
