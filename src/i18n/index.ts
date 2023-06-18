@@ -1,3 +1,4 @@
+import { get } from 'http';
 import { TranslationKeys, Translations } from './translations';
 
 export type TranslationFunc = (key: keyof TranslationKeys, values?: Record<string, string | number>) => string;
@@ -59,18 +60,48 @@ export function getUserDisplayLanguage(): string {
 }
 
 /**
+ * Gets the list of the user's primary languages, in order of preference, with 0 being the highest preference.
+ * If the user has set a language in Notion, this will be the first language in the list if it can be found.
+ * Otherwise, it just uses the browser's preferred languages.
+ *
+ * @returns The ordered list of the user's primary languages, e.g. ["en", "fr"]
+ */
+function getUserPrimaryLanguages(): string[] {
+  const notionLanguage = getNotionPrimaryLanguage();
+  if (notionLanguage !== undefined) {
+    return [notionLanguage, ...getBrowserPrimaryLanguages()];
+  }
+
+  return getBrowserPrimaryLanguages();
+}
+
+/**
  * Retrieves a list of the user's primary languages, in order of preference, with 0 being the highest
  * preference. This does not contain the region suffix or duplicates.
  *
  * @returns The ordered list of the user's primary languages, e.g. ["en", "fr"]
  */
-function getUserPrimaryLanguages(): string[] {
+function getBrowserPrimaryLanguages(): string[] {
   return (
     navigator.languages
       .map(getPrimaryLanguageCode)
       // Remove duplicates. Don't use a set as the order is important.
       .filter((languageCode, index, allLanguageCodes) => allLanguageCodes.indexOf(languageCode) === index)
   );
+}
+
+/**
+ * Tries to find the notion language cookie and returns the primary language code if it exists.
+ *
+ * @returns The notion primary language code, e.g. "en" or undefined if it could not be found
+ */
+function getNotionPrimaryLanguage(): string | undefined {
+  const language = document.cookie.match(/NEXT_LOCALE=([\w-]+)/);
+  if (language === null) {
+    return undefined;
+  }
+
+  return getPrimaryLanguageCode(language[1]);
 }
 
 /**
