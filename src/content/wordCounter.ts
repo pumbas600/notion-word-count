@@ -85,7 +85,7 @@ function countWords(value: string): number {
     return 0;
   }
 
-  return trimmedValue.split(/[\s\.]+/g).filter(isWord).length;
+  return trimmedValue.split(/[\s\.\(\)]+/g).filter(isWord).length;
 }
 
 function countTextNodeWords(textNode: HTMLElement): number {
