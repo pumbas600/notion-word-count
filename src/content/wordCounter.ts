@@ -35,6 +35,7 @@ function attachWordCountLabel(): Maybe<Element> {
   const parents = document.getElementsByClassName(NOTION_WORD_COUNT_PARENT);
   if (parents.length !== 1) {
     // This could be caused by the page still loading or the user being redirected.
+    console.debug(`Expected 1 word count parent element, found ${parents.length}`);
     return undefined;
   }
 
@@ -47,6 +48,7 @@ function getPageRoot(): Maybe<Element> {
     const elements = document.getElementsByClassName(NOTION_PAGE_ROOT_CLASS);
     if (elements.length !== 1) {
       // This could be caused by the page still loading or the user being redirected.
+      console.debug(`Expected 1 page root element, found ${elements.length}`);
       return undefined;
     }
 
@@ -200,12 +202,10 @@ function main(): void {
   onUrlChange(() => cleanUp());
 }
 
-window.onload = () => {
-  main();
-};
-
 window.onunload = () => {
   if (interval !== undefined) {
     clearInterval(interval);
   }
 };
+
+main();
