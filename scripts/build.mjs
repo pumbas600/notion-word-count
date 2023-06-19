@@ -1,6 +1,9 @@
 import fs from 'fs';
 
+const FAILURE = 1;
+
 const CONFIG = {
+  DIST: './dist',
   MANIFEST: {
     CHROMIUM: './src/chromium-manifest.json',
     FIREFOX: './src/firefox-manifest.json',
@@ -8,10 +11,19 @@ const CONFIG = {
 };
 
 const OPTIONS = {
-  CHROMIUM: 'chromium',
-  FIREFOX: 'firefox',
-  RELEASE: 'release',
+  CHROMIUM: 'CHROMIUM',
+  FIREFOX: 'FIREFOX',
+  RELEASE: 'RELEASE',
 };
+
+/**
+ * Creates the dist folder if it doesn't exist.
+ */
+function makeDist() {
+  if (!fs.existsSync(CONFIG.DIST)) {
+    fs.mkdirSync(CONFIG.DIST);
+  }
+}
 
 /**
  * Copies the manifest specified to the dist folder.
@@ -19,7 +31,7 @@ const OPTIONS = {
  * @param {string} manifestLocation The location of the manifest to copy
  */
 function copyManifest(manifestLocation) {
-  fs.copyFileSync(manifestLocation, './dist/manifest.json');
+  fs.copyFileSync(manifestLocation, `${CONFIG.DIST}/manifest.json`);
 }
 
 function makeRelease() {
@@ -29,25 +41,25 @@ function makeRelease() {
 /**
  * Processes and validates the arguments passed to the script.
  *
- * @returns {string | undefined}
+ * @returns {string}
  */
 function processOption() {
   if (process.argv.length < 3 || process.argv.length > 3) {
     console.error('Invalid number of arguments');
-    return 1;
+    process.exit(FAILURE);
   }
 
   const [_node, _script, option] = process.argv;
   if (!option.startsWith('--')) {
     console.error(`Invalid option: ${option}`);
-    return;
+    process.exit(FAILURE);
   }
 
   const parsedOption = option.substring(2).toUpperCase();
 
   if (!(parsedOption in OPTIONS)) {
     console.error(`Invalid option: ${option}`);
-    return;
+    process.exit(FAILURE);
   }
 
   return parsedOption;
@@ -55,10 +67,8 @@ function processOption() {
 
 function main() {
   const option = processOption();
-  if (!option) {
-    return;
-  }
 
+  makeDist();
   switch (option) {
     case OPTIONS.CHROMIUM:
       copyManifest(CONFIG.MANIFEST.CHROMIUM);
