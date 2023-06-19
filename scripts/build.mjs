@@ -1,18 +1,26 @@
 import fs from 'fs';
+import JSZip from 'jszip';
 
 const FAILURE = 1;
 
+const DISTRUBUTIONS = {
+  CHROMIUM: 'CHROMIUM',
+  FIREFOX: 'FIREFOX',
+};
+
 const CONFIG = {
-  DIST: './dist',
+  RELEASE: './release',
+  DIST: {
+    BASE: './dist',
+    BUILD: './dist/content',
+  },
   MANIFEST: {
-    CHROMIUM: './src/chromium-manifest.json',
-    FIREFOX: './src/firefox-manifest.json',
+    [DISTRUBUTIONS.CHROMIUM]: './src/chromium-manifest.json',
+    [DISTRUBUTIONS.FIREFOX]: './src/firefox-manifest.json',
   },
 };
 
 const OPTIONS = {
-  CHROMIUM: 'CHROMIUM',
-  FIREFOX: 'FIREFOX',
   RELEASE: 'RELEASE',
 };
 
@@ -20,8 +28,8 @@ const OPTIONS = {
  * Creates the dist folder if it doesn't exist.
  */
 function makeDist() {
-  if (!fs.existsSync(CONFIG.DIST)) {
-    fs.mkdirSync(CONFIG.DIST);
+  if (!fs.existsSync(CONFIG.DIST.BASE)) {
+    fs.mkdirSync(CONFIG.DIST.BASE);
   }
 }
 
@@ -31,11 +39,31 @@ function makeDist() {
  * @param {string} manifestLocation The location of the manifest to copy
  */
 function copyManifest(manifestLocation) {
-  fs.copyFileSync(manifestLocation, `${CONFIG.DIST}/manifest.json`);
+  fs.copyFileSync(manifestLocation, `${CONFIG.DIST.BASE}/manifest.json`);
+}
+
+// TODO: Version
+function makeReleaseZip(release) {
+  const zip = new JSZip();
+  zip.file('manifest.json', fs.readFileSync(CONFIG.MANIFEST[release]));
+
+  const content = zip.folder('content');
+
+  fs.readdirSync(CONFIG.DIST.BUILD).forEach((file) => {
+    content.file(file, fs.readFileSync(`${CONFIG.DIST.BUILD}/${file}`));
+  });
+
+  zip.generateAsync().then((content) => {
+    fs.writeFileSync(`${CONFIG.RELEASE}/${release}.zip`, content);
+  });
 }
 
 function makeRelease() {
-  console.log('Making release...');
+  if (!fs.existsSync(CONFIG.RELEASE)) {
+    fs.mkdirSync(CONFIG.RELEASE);
+  }
+
+  Object.values(DISTRUBUTIONS).forEach(makeReleaseZip);
 }
 
 /**
@@ -57,7 +85,7 @@ function processOption() {
 
   const parsedOption = option.substring(2).toUpperCase();
 
-  if (!(parsedOption in OPTIONS)) {
+  if (!(parsedOption in OPTIONS) && parsedOption !== OPTIONS.RELEASE) {
     console.error(`Invalid option: ${option}`);
     process.exit(FAILURE);
   }
@@ -70,10 +98,10 @@ function main() {
 
   makeDist();
   switch (option) {
-    case OPTIONS.CHROMIUM:
+    case DISTRUBUTIONS.CHROMIUM:
       copyManifest(CONFIG.MANIFEST.CHROMIUM);
       break;
-    case OPTIONS.FIREFOX:
+    case DISTRUBUTIONS.FIREFOX:
       copyManifest(CONFIG.MANIFEST.FIREFOX);
       break;
     case OPTIONS.RELEASE:
