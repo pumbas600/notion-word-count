@@ -1,11 +1,12 @@
 {
   "name": "notion-word-count",
-  "version": "1.0.0",
+  "version": "0.0.1",
   "description": "Display the word count in a notion page",
   "scripts": {
     "dev-chrome": "node scripts/build.js --chromium && webpack --watch",
     "dev-firefox": "node scripts/build.js --firefox && webpack --watch",
     "build": "webpack",
+    "prerelease": "node scripts/build.js --version",
     "release": "webpack",
     "postrelease": "node scripts/build.js --release"
   },

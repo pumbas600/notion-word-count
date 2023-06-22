@@ -22,7 +22,8 @@ const CONFIG = {
 };
 
 const OPTIONS = {
-  RELEASE: 'RELEASE',
+  RELEASE: 'release',
+  VERSION: 'version',
 };
 
 /**
@@ -43,6 +44,12 @@ function copyManifest(manifestLocation) {
   fs.copyFileSync(manifestLocation, `${CONFIG.DIST.BASE}/manifest.json`);
 }
 
+/**
+ * Gets the full release name and path for the specified distribution.
+ *
+ * @param {string} distribution The distribution to get the release name for
+ * @returns {string} The full release name and path
+ */
 function getReleaseName(distribution) {
   return `${CONFIG.RELEASE}/${distribution}/${packageJson.name}-${distribution}-v${packageJson.version}.zip`;
 }
@@ -75,10 +82,21 @@ function makeRelease() {
   });
 }
 
+function updateManifestVersions() {
+  const newVersion = packageJson.version;
+
+  Object.values(CONFIG.MANIFEST).forEach((manifestLocation) => {
+    const manifest = JSON.parse(fs.readFileSync(manifestLocation));
+    manifest.version = newVersion;
+
+    fs.writeFileSync(manifestLocation, JSON.stringify(manifest, null, 2));
+  });
+}
+
 /**
- * Processes and validates the arguments passed to the script.
+ * Processes and validates the arguments passed to the script. If the option is not valid then the script will exit.
  *
- * @returns {string}
+ * @returns {string} The processed option
  */
 function processOption() {
   if (process.argv.length < 3 || process.argv.length > 3) {
@@ -118,6 +136,9 @@ function main() {
       break;
     case OPTIONS.RELEASE:
       makeRelease();
+      break;
+    case OPTIONS.VERSION:
+      updateManifestVersions();
       break;
   }
 }

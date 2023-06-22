@@ -1,14 +1,20 @@
 {
   "manifest_version": 2,
   "name": "Notion Word Count",
-  "version": "0.1.0",
+  "version": "0.0.1",
   "description": "Adds a word count label to notion pages.",
   "icons": {},
   "content_scripts": [
     {
-      "matches": ["https://www.notion.so/*"],
-      "js": ["content/wordCounter.js"],
-      "css": ["content/wordCounter.css"]
+      "matches": [
+        "https://www.notion.so/*"
+      ],
+      "js": [
+        "content/wordCounter.js"
+      ],
+      "css": [
+        "content/wordCounter.css"
+      ]
     }
   ]
 }
