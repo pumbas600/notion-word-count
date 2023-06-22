@@ -3,11 +3,11 @@
   "version": "1.0.0",
   "description": "Display the word count in a notion page",
   "scripts": {
-    "dev-chrome": "node scripts/build.mjs --chromium && webpack --watch",
-    "dev-firefox": "node scripts/build.mjs --firefox && webpack --watch",
+    "dev-chrome": "node scripts/build.js --chromium && webpack --watch",
+    "dev-firefox": "node scripts/build.js --firefox && webpack --watch",
     "build": "webpack",
     "release": "webpack",
-    "postrelease": "node scripts/build.mjs --release"
+    "postrelease": "node scripts/build.js --release"
   },
   "author": "pumbas600",
   "license": "ISC",

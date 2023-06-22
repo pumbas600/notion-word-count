@@ -1,11 +1,12 @@
-import fs from 'fs';
-import JSZip from 'jszip';
+const fs = require('fs');
+const JSZip = require('jszip');
+const packageJson = require('../package.json');
 
 const FAILURE = 1;
 
 const DISTRUBUTIONS = {
-  CHROMIUM: 'CHROMIUM',
-  FIREFOX: 'FIREFOX',
+  CHROMIUM: 'chromium',
+  FIREFOX: 'firefox',
 };
 
 const CONFIG = {
@@ -42,17 +43,21 @@ function copyManifest(manifestLocation) {
   fs.copyFileSync(manifestLocation, `${CONFIG.DIST.BASE}/manifest.json`);
 }
 
-// TODO: Version and actually compress files
-function makeReleaseZip(release) {
+function getReleaseName(distribution) {
+  return `${CONFIG.RELEASE}/${distribution}/${packageJson.name}-${distribution}-v${packageJson.version}.zip`;
+}
+
+// TODO: Actually compress files
+function makeReleaseZip(distribution) {
   const zip = new JSZip();
-  zip.file('manifest.json', fs.readFileSync(CONFIG.MANIFEST[release]));
+  zip.file('manifest.json', fs.readFileSync(CONFIG.MANIFEST[distribution]));
 
   fs.readdirSync(CONFIG.DIST.BUILD).forEach((file) => {
     zip.file(`content/${file}`, fs.readFileSync(`${CONFIG.DIST.BUILD}/${file}`));
   });
 
   zip.generateAsync({ type: 'nodebuffer' }).then((content) => {
-    fs.writeFileSync(`${CONFIG.RELEASE}/${release}.zip`, content);
+    fs.writeFileSync(getReleaseName(distribution), content);
   });
 }
 
@@ -61,7 +66,13 @@ function makeRelease() {
     fs.mkdirSync(CONFIG.RELEASE);
   }
 
-  Object.values(DISTRUBUTIONS).forEach(makeReleaseZip);
+  Object.values(DISTRUBUTIONS).forEach((distribution) => {
+    if (!fs.existsSync(`${CONFIG.RELEASE}/${distribution}`)) {
+      fs.mkdirSync(`${CONFIG.RELEASE}/${distribution}`);
+    }
+
+    makeReleaseZip(distribution);
+  });
 }
 
 /**
@@ -82,13 +93,16 @@ function processOption() {
   }
 
   const parsedOption = option.substring(2).toUpperCase();
-
-  if (!(parsedOption in OPTIONS) && parsedOption !== OPTIONS.RELEASE) {
-    console.error(`Invalid option: ${option}`);
-    process.exit(FAILURE);
+  if (parsedOption in DISTRUBUTIONS) {
+    return DISTRUBUTIONS[parsedOption];
   }
 
-  return parsedOption;
+  if (parsedOption in OPTIONS) {
+    return OPTIONS[parsedOption];
+  }
+
+  console.error(`Invalid option: ${option}`);
+  process.exit(FAILURE);
 }
 
 function main() {
