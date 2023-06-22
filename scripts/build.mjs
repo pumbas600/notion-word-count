@@ -42,18 +42,16 @@ function copyManifest(manifestLocation) {
   fs.copyFileSync(manifestLocation, `${CONFIG.DIST.BASE}/manifest.json`);
 }
 
-// TODO: Version
+// TODO: Version and actually compress files
 function makeReleaseZip(release) {
   const zip = new JSZip();
   zip.file('manifest.json', fs.readFileSync(CONFIG.MANIFEST[release]));
 
-  const content = zip.folder('content');
-
   fs.readdirSync(CONFIG.DIST.BUILD).forEach((file) => {
-    content.file(file, fs.readFileSync(`${CONFIG.DIST.BUILD}/${file}`));
+    zip.file(`content/${file}`, fs.readFileSync(`${CONFIG.DIST.BUILD}/${file}`));
   });
 
-  zip.generateAsync().then((content) => {
+  zip.generateAsync({ type: 'nodebuffer' }).then((content) => {
     fs.writeFileSync(`${CONFIG.RELEASE}/${release}.zip`, content);
   });
 }

@@ -6,7 +6,8 @@
     "dev-chrome": "node scripts/build.mjs --chromium && webpack --watch",
     "dev-firefox": "node scripts/build.mjs --firefox && webpack --watch",
     "build": "webpack",
-    "postbuild": "node scripts/build.mjs --release"
+    "release": "webpack",
+    "postrelease": "node scripts/build.mjs --release"
   },
   "author": "pumbas600",
   "license": "ISC",
