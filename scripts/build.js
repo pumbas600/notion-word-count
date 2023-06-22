@@ -1,5 +1,6 @@
 const fs = require('fs');
 const JSZip = require('jszip');
+const { exec } = require('child_process');
 const packageJson = require('../package.json');
 
 const FAILURE = 1;
@@ -24,6 +25,7 @@ const CONFIG = {
 const OPTIONS = {
   RELEASE: 'release',
   VERSION: 'version',
+  PUSH: 'push',
 };
 
 /**
@@ -93,6 +95,13 @@ function updateManifestVersions() {
   });
 }
 
+function pushRelease() {
+  const commitMessage = `release: :label: v${packageJson.version}`;
+  exec(
+    `git commit -m "${commitMessage}" && git tag -a v${packageJson.version} -m "${commitMessage}" && git push --follow-tags`,
+  );
+}
+
 /**
  * Processes and validates the arguments passed to the script. If the option is not valid then the script will exit.
  *
@@ -140,6 +149,8 @@ function main() {
     case OPTIONS.VERSION:
       updateManifestVersions();
       break;
+    case OPTIONS.PUSH:
+      pushRelease();
   }
 }
 

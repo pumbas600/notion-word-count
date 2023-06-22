@@ -3,14 +3,15 @@
   "version": "0.0.1",
   "description": "Display the word count in a notion page",
   "scripts": {
-    "dev-chrome": "node scripts/build.js --chromium && webpack --watch",
-    "dev-firefox": "node scripts/build.js --firefox && webpack --watch",
+    "dev:chrome": "node scripts/build.js --chromium && webpack --watch",
+    "dev:firefox": "node scripts/build.js --firefox && webpack --watch",
     "build": "webpack",
     "prerelease": "node scripts/build.js --version",
     "release": "webpack",
     "postrelease": "node scripts/build.js --release && git add ./release/*",
-    "postversion": "npm run release && git add *-manifest.json && git commit --amend --no-edit && git push --follow-tags",
-    "patch": "npm version patch -m \"release: :label: %s\""
+    "postversion": "npm run release && git add *-manifest.json",
+    "patch": "npm version patch --git-tag-version false && npm run push",
+    "push": "node scripts/build.js --push"
   },
   "author": "pumbas600",
   "license": "ISC",
