@@ -8,7 +8,9 @@
     "build": "webpack",
     "prerelease": "node scripts/build.js --version",
     "release": "webpack",
-    "postrelease": "node scripts/build.js --release"
+    "postrelease": "node scripts/build.js --release && git add ./release/*",
+    "postversion": "npm run release && git add *-manifest.json && git commit --amend --no-edit && git push --follow-tags",
+    "patch": "npm version patch -m \"release: :label: %s\""
   },
   "author": "pumbas600",
   "license": "ISC",
