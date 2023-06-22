@@ -11,6 +11,8 @@
     "postrelease": "node scripts/build.js --release",
     "postversion": "npm run release && npm run push",
     "patch": "npm version patch --git-tag-version false",
+    "minor": "npm version minor --git-tag-version false",
+    "major": "npm version major --git-tag-version false",
     "push": "node scripts/build.js --push"
   },
   "author": "pumbas600",
