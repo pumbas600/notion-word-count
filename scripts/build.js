@@ -98,8 +98,12 @@ function updateManifestVersions() {
 function pushRelease() {
   const commitMessage = `release: :label: v${packageJson.version}`;
   const releaseMessage = `Release v${packageJson.version}. You can download the latest version by referring to the links in the README.md.`;
+
   exec(
-    `git commit -m "${commitMessage}" && git tag -a v${packageJson.version} -m "${releaseMessage}" && git push --follow-tags`,
+    'git add ./release/* *-manifest.json package.json package-lock.json' +
+      `&& git commit -m "${commitMessage}"` +
+      `&& git tag -a v${packageJson.version} -m "${releaseMessage}"` +
+      `&& git push --follow-tags`,
   );
 }
 
