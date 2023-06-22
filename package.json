@@ -9,7 +9,7 @@
     "prerelease": "node scripts/build.js --version",
     "release": "webpack",
     "postrelease": "node scripts/build.js --release && git add ./release/*",
-    "postversion": "npm run release && git add *-manifest.json",
+    "postversion": "npm run release && git add *-manifest.json && git add package.json && git add package-lock.json",
     "patch": "npm version patch --git-tag-version false && npm run push",
     "push": "node scripts/build.js --push"
   },
