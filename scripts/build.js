@@ -143,10 +143,10 @@ function main() {
   makeDist();
   switch (option) {
     case DISTRUBUTIONS.CHROMIUM:
-      copyManifest(CONFIG.MANIFEST.CHROMIUM);
+      copyManifest(CONFIG.MANIFEST[DISTRUBUTIONS.CHROMIUM]);
       break;
     case DISTRUBUTIONS.FIREFOX:
-      copyManifest(CONFIG.MANIFEST.FIREFOX);
+      copyManifest(CONFIG.MANIFEST[DISTRUBUTIONS.FIREFOX]);
       break;
     case OPTIONS.RELEASE:
       makeRelease();
