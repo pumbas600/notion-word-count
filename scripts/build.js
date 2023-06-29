@@ -56,6 +56,12 @@ function getReleaseName(distribution) {
   return `${CONFIG.RELEASE}/${distribution}/${packageJson.name}-${distribution}-v${packageJson.version}.zip`;
 }
 
+/**
+ * Create a zip file with the manifest and built files for the specified distribution and save it to the release folder
+ * with the latest version.
+ *
+ * @param {string} distribution A value of DISTRUBUTIONS
+ */
 // TODO: Actually compress files
 function makeReleaseZip(distribution) {
   const zip = new JSZip();
@@ -70,6 +76,9 @@ function makeReleaseZip(distribution) {
   });
 }
 
+/**
+ * Creates a release folder if it doesn't exist and creates a release zip file for each distribution.
+ */
 function makeRelease() {
   if (!fs.existsSync(CONFIG.RELEASE)) {
     fs.mkdirSync(CONFIG.RELEASE);
@@ -84,6 +93,9 @@ function makeRelease() {
   });
 }
 
+/**
+ * Updates the version in the manifest files to the latest version specified in the package.json file.
+ */
 function updateManifestVersions() {
   const newVersion = packageJson.version;
 
@@ -95,6 +107,10 @@ function updateManifestVersions() {
   });
 }
 
+/**
+ * Git add all the release files and create a commit of them with a tag of the latest version. Then push the commit and
+ * tag to the remote repository.
+ */
 function pushRelease() {
   const commitMessage = `release: :label: v${packageJson.version}`;
   const releaseMessage = `Release v${packageJson.version}. You can download the latest version by referring to the links in the README.md.`;
@@ -137,6 +153,9 @@ function processOption() {
   process.exit(FAILURE);
 }
 
+/**
+ * The main function of the script that will execute the relevant function depending on the flag passed to the script.
+ */
 function main() {
   const option = processOption();
 
@@ -156,6 +175,7 @@ function main() {
       break;
     case OPTIONS.PUSH:
       pushRelease();
+      break;
   }
 }
 
