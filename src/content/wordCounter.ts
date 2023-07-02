@@ -1,5 +1,6 @@
 import { buildTranslationFunction } from '../i18n';
 import { Maybe } from '../types';
+import { isNotNull } from '../utils';
 import { Block, blockFromClasses } from './notion/blocks';
 
 type BlockElementPair = [Element, Maybe<Block>];
@@ -7,10 +8,16 @@ type LabelContent = {
   isSelected: boolean;
   count: number;
 };
+type WordCount = {
+  total: number;
+  selected: number;
+};
 
 const NOTION_PAGE_ROOT_CLASS = 'notion-page-content';
 const NOTION_WORD_COUNT_PARENT = 'notion-app-inner';
 const NOTION_WORD_COUNT_ID = 'notion-word-count-label';
+const NOTION_SELECTABLE_CLASS = 'notion-selectable';
+const NOTION_SELECTED_CLASS = 'notion-selectable-halo';
 
 const translate = buildTranslationFunction();
 
@@ -95,22 +102,52 @@ function countTextNodeWords(textNode: HTMLElement): number {
   return countWords(textNode.innerText);
 }
 
-function countWordsInBlock([element, _block]: BlockElementPair): number {
-  let wordCount = 0;
+function getSelectedHaloBlock(selectedHalo: Element): Element | null {
+  let parent = selectedHalo.parentElement;
+  while (parent !== null && !parent.classList.contains(NOTION_SELECTABLE_CLASS)) {
+    parent = parent.parentElement;
+  }
+
+  return parent;
+}
+
+function countWordsInBlock(element: Element): number {
+  let totalWordCount = 0;
 
   const textNodes = element.querySelectorAll<HTMLElement>('[data-content-editable-leaf="true"]');
   for (const textNode of textNodes) {
-    wordCount += countTextNodeWords(textNode);
+    totalWordCount += countTextNodeWords(textNode);
   }
 
-  return wordCount;
+  return totalWordCount;
 }
 
-function countWordsInPage(pageRoot: Maybe<Element>, excludedBlocks: Block[]): number {
+function countSelectedAndTotalWordsInBlock(element: Element): WordCount {
+  const totalWordCount = countWordsInBlock(element);
+  const selectedBlocks = [
+    ...new Set([...element.getElementsByClassName(NOTION_SELECTED_CLASS)].map(getSelectedHaloBlock).filter(isNotNull)),
+  ];
+
+  const selectedWordCount = selectedBlocks.map(countWordsInBlock).reduce((a, b) => a + b, 0);
+
+  return {
+    total: totalWordCount,
+    selected: selectedWordCount,
+  };
+}
+
+function countWordsInPage(pageRoot: Maybe<Element>, excludedBlocks: Block[]): WordCount {
   return getPageBlockElements(pageRoot)
     .filter(([_, block]) => block === undefined || !excludedBlocks.includes(block))
-    .map(countWordsInBlock)
-    .reduce((a, b) => a + b, 0);
+    .map(([element]) => countSelectedAndTotalWordsInBlock(element))
+    .reduce(
+      (aggregate, next) => {
+        aggregate.total += next.total;
+        aggregate.selected += next.selected;
+        return aggregate;
+      },
+      { total: 0, selected: 0 },
+    );
 }
 
 function countSelectedWords(): number {
@@ -154,13 +191,16 @@ function updateWordCountLabel(): void {
     return;
   }
 
-  const totalWordCount = countWordsInPage(pageRoot, [Block.Equation]);
+  const wordCount = countWordsInPage(pageRoot, [Block.Equation]);
   const selectedWordCount = countSelectedWords();
 
-  const isSelected = selectedWordCount !== 0;
-  const count = isSelected ? selectedWordCount : totalWordCount;
-
-  setWordCountLabel(wordCountLabel, { isSelected, count });
+  if (wordCount.selected !== 0) {
+    setWordCountLabel(wordCountLabel, { isSelected: true, count: wordCount.selected });
+  } else if (selectedWordCount !== 0) {
+    setWordCountLabel(wordCountLabel, { isSelected: true, count: selectedWordCount });
+  } else {
+    setWordCountLabel(wordCountLabel, { isSelected: false, count: wordCount.total });
+  }
 }
 
 // Modified from: https://stackoverflow.com/questions/3522090/event-when-window-location-href-changes

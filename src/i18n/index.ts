@@ -1,4 +1,3 @@
-import { get } from 'http';
 import { TranslationKeys, Translations } from './translations';
 
 export type TranslationFunc = (key: keyof TranslationKeys, values?: Record<string, string | number>) => string;
