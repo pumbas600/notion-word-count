@@ -1,3 +1,4 @@
+import { Maybe } from '../types';
 import { TranslationKeys, Translations } from './translations';
 
 export type TranslationFunc = (key: keyof TranslationKeys, values?: Record<string, string | number>) => string;
@@ -94,7 +95,7 @@ function getBrowserPrimaryLanguages(): string[] {
  *
  * @returns The notion primary language code, e.g. "en" or undefined if it could not be found
  */
-function getNotionPrimaryLanguage(): string | undefined {
+function getNotionPrimaryLanguage(): Maybe<string> {
   const language = document.cookie.match(/NEXT_LOCALE=([\w-]+)/);
   if (language === null) {
     return undefined;

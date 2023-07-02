@@ -1,6 +1,6 @@
 import { buildTranslationFunction } from '../i18n';
 import { Maybe } from '../types';
-import { isNotNull } from '../utils';
+import { isNotUndefined } from '../utils';
 import { Block, blockFromClasses } from './notion/blocks';
 
 type BlockElementPair = [Element, Maybe<Block>];
@@ -102,13 +102,13 @@ function countTextNodeWords(textNode: HTMLElement): number {
   return countWords(textNode.innerText);
 }
 
-function getSelectedHaloBlock(selectedHalo: Element): Element | null {
+function getSelectedHaloBlock(selectedHalo: Element): Maybe<Element> {
   let parent = selectedHalo.parentElement;
   while (parent !== null && !parent.classList.contains(NOTION_SELECTABLE_CLASS)) {
     parent = parent.parentElement;
   }
 
-  return parent;
+  return parent ?? undefined;
 }
 
 function countWordsInBlock(element: Element): number {
@@ -125,7 +125,9 @@ function countWordsInBlock(element: Element): number {
 function countSelectedAndTotalWordsInBlock(element: Element): WordCount {
   const totalWordCount = countWordsInBlock(element);
   const selectedBlocks = [
-    ...new Set([...element.getElementsByClassName(NOTION_SELECTED_CLASS)].map(getSelectedHaloBlock).filter(isNotNull)),
+    ...new Set(
+      [...element.getElementsByClassName(NOTION_SELECTED_CLASS)].map(getSelectedHaloBlock).filter(isNotUndefined),
+    ),
   ];
 
   const selectedWordCount = selectedBlocks.map(countWordsInBlock).reduce((a, b) => a + b, 0);

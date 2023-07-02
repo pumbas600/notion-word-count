@@ -1,3 +1,5 @@
-export function isNotNull<T>(value: T | null): value is T {
-  return value !== null;
+import { Maybe } from '../types';
+
+export function isNotUndefined<T>(value: Maybe<T>): value is T {
+  return value !== undefined;
 }
