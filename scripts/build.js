@@ -12,6 +12,7 @@ const DISTRUBUTIONS = {
 
 const CONFIG = {
   RELEASE: './release',
+  ASSETS: './src/assets',
   DIST: {
     BASE: './dist',
     BUILD: './dist/content',
@@ -29,6 +30,29 @@ const OPTIONS = {
 };
 
 /**
+ * Copies the assets folder to the specified location and creates an assets folder there if it doesn't already exist.
+ *
+ * @param {string} newLocation The location to copy the assets folder to
+ */
+function copyAssetsTo(newLocation) {
+  if (!fs.existsSync(`${newLocation}/assets`)) {
+    fs.mkdirSync(`${newLocation}/assets`);
+  }
+
+  fs.readdirSync(CONFIG.ASSETS).forEach((file) => {
+    fs.copyFileSync(`${CONFIG.ASSETS}/${file}`, `${newLocation}/assets/${file}`);
+  });
+}
+
+/**
+ * Prepares the dist folder for building by cleaning it and creating it if it doesn't exist.
+ */
+function prepareBuild() {
+  cleanDist();
+  makeDist();
+}
+
+/**
  * Creates the dist folder if it doesn't exist.
  */
 function makeDist() {
@@ -38,12 +62,24 @@ function makeDist() {
 }
 
 /**
- * Copies the manifest specified to the dist folder.
- *
- * @param {string} manifestLocation The location of the manifest to copy
+ * Deletes the dist folder if it exists.
  */
-function copyManifest(manifestLocation) {
-  fs.copyFileSync(manifestLocation, `${CONFIG.DIST.BASE}/manifest.json`);
+function cleanDist() {
+  if (fs.existsSync(CONFIG.DIST.BASE)) {
+    fs.rm(CONFIG.DIST.BASE, { recursive: true });
+  }
+}
+
+/**
+ * Creates a development build of the extension for the specified distribution. This is done by copying the assets and the
+ * manifest for that distribution to the dist folder.
+ *
+ * @param {string} distribution The distribution to make a dev build for
+ */
+function makeDevBuild(distribution) {
+  prepareBuild();
+  copyAssetsTo(CONFIG.DIST.BASE);
+  fs.copyFileSync(CONFIG.MANIFEST[distribution], `${CONFIG.DIST.BASE}/manifest.json`);
 }
 
 /**
@@ -71,6 +107,10 @@ function makeReleaseZip(distribution) {
     zip.file(`content/${file}`, fs.readFileSync(`${CONFIG.DIST.BUILD}/${file}`));
   });
 
+  fs.readdirSync(CONFIG.ASSETS).forEach((file) => {
+    zip.file(`assets/${file}`, fs.readFileSync(`${CONFIG.ASSETS}/${file}`));
+  });
+
   zip.generateAsync({ type: 'nodebuffer' }).then((content) => {
     fs.writeFileSync(getReleaseName(distribution), content);
   });
@@ -80,6 +120,7 @@ function makeReleaseZip(distribution) {
  * Creates a release folder if it doesn't exist and creates a release zip file for each distribution.
  */
 function makeRelease() {
+  prepareBuild();
   if (!fs.existsSync(CONFIG.RELEASE)) {
     fs.mkdirSync(CONFIG.RELEASE);
   }
@@ -152,20 +193,18 @@ function processOption() {
   console.error(`Invalid option: ${option}`);
   process.exit(FAILURE);
 }
-
 /**
  * The main function of the script that will execute the relevant function depending on the flag passed to the script.
  */
 function main() {
   const option = processOption();
 
-  makeDist();
   switch (option) {
     case DISTRUBUTIONS.CHROMIUM:
-      copyManifest(CONFIG.MANIFEST[DISTRUBUTIONS.CHROMIUM]);
+      makeDevBuild(DISTRUBUTIONS.CHROMIUM);
       break;
     case DISTRUBUTIONS.FIREFOX:
-      copyManifest(CONFIG.MANIFEST[DISTRUBUTIONS.FIREFOX]);
+      makeDevBuild(DISTRUBUTIONS.FIREFOX);
       break;
     case OPTIONS.RELEASE:
       makeRelease();
