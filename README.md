@@ -10,7 +10,7 @@ To watch for changes to the `css` or `ts` files, you can use:
 * `npm run dev:chrome`.
 * `npm run dev:firefox`.
 > **Note**
-> This does not listen to changes in the manifest files.
+> This does not listen to changes in the manifest files or assets. If these change you will need to re-run the command.
 
 ## Release
 
