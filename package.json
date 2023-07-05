@@ -7,7 +7,7 @@
     "build:firefox": "node scripts/build.js --firefox && webpack",
     "dev:chrome": "node scripts/build.js --chromium && webpack --watch",
     "dev:firefox": "node scripts/build.js --firefox && webpack --watch",
-    "prerelease": "node scripts/build.js --version",
+    "prerelease": "node scripts/build.js --build && scripts/build.js --version",
     "release": "webpack",
     "postrelease": "node scripts/build.js --release",
     "release:patch": "npm version patch --git-tag-version false",

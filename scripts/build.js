@@ -24,6 +24,7 @@ const CONFIG = {
 };
 
 const OPTIONS = {
+  BUILD: 'build',
   RELEASE: 'release',
   VERSION: 'version',
   PUSH: 'push',
@@ -120,7 +121,6 @@ function makeReleaseZip(distribution) {
  * Creates a release folder if it doesn't exist and creates a release zip file for each distribution.
  */
 function makeRelease() {
-  prepareBuild();
   if (!fs.existsSync(CONFIG.RELEASE)) {
     fs.mkdirSync(CONFIG.RELEASE);
   }
@@ -214,6 +214,9 @@ function main() {
       break;
     case OPTIONS.PUSH:
       pushRelease();
+      break;
+    case OPTIONS.BUILD:
+      prepareBuild();
       break;
   }
 }
