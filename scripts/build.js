@@ -1,27 +1,10 @@
 const fs = require('fs');
 const JSZip = require('jszip');
 const { exec } = require('child_process');
+const { DISTRUBUTIONS, CONFIG } = require('./config');
 const packageJson = require('../package.json');
 
 const FAILURE = 1;
-
-const DISTRUBUTIONS = {
-  CHROMIUM: 'chromium',
-  FIREFOX: 'firefox',
-};
-
-const CONFIG = {
-  RELEASE: './release',
-  ASSETS: './src/assets',
-  DIST: {
-    BASE: './dist',
-    BUILD: './dist/content',
-  },
-  MANIFEST: {
-    [DISTRUBUTIONS.CHROMIUM]: './src/chromium-manifest.json',
-    [DISTRUBUTIONS.FIREFOX]: './src/firefox-manifest.json',
-  },
-};
 
 const OPTIONS = {
   BUILD: 'build',
@@ -67,7 +50,7 @@ function makeDist() {
  */
 function cleanDist() {
   if (fs.existsSync(CONFIG.DIST.BASE)) {
-    fs.rm(CONFIG.DIST.BASE, { recursive: true });
+    fs.rmSync(CONFIG.DIST.BASE, { recursive: true });
   }
 }
 
