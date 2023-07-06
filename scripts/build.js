@@ -1,7 +1,7 @@
 const fs = require('fs');
 const JSZip = require('jszip');
 const { exec } = require('child_process');
-const { DISTRUBUTIONS, CONFIG } = require('./config');
+const { DISTRUBUTIONS, CONFIG, makeDevBuild } = require('./common');
 const packageJson = require('../package.json');
 
 const FAILURE = 1;
@@ -12,59 +12,6 @@ const OPTIONS = {
   VERSION: 'version',
   PUSH: 'push',
 };
-
-/**
- * Copies the assets folder to the specified location and creates an assets folder there if it doesn't already exist.
- *
- * @param {string} newLocation The location to copy the assets folder to
- */
-function copyAssetsTo(newLocation) {
-  if (!fs.existsSync(`${newLocation}/assets`)) {
-    fs.mkdirSync(`${newLocation}/assets`);
-  }
-
-  fs.readdirSync(CONFIG.ASSETS).forEach((file) => {
-    fs.copyFileSync(`${CONFIG.ASSETS}/${file}`, `${newLocation}/assets/${file}`);
-  });
-}
-
-/**
- * Prepares the dist folder for building by cleaning it and creating it if it doesn't exist.
- */
-function prepareBuild() {
-  cleanDist();
-  makeDist();
-}
-
-/**
- * Creates the dist folder if it doesn't exist.
- */
-function makeDist() {
-  if (!fs.existsSync(CONFIG.DIST.BASE)) {
-    fs.mkdirSync(CONFIG.DIST.BASE);
-  }
-}
-
-/**
- * Deletes the dist folder if it exists.
- */
-function cleanDist() {
-  if (fs.existsSync(CONFIG.DIST.BASE)) {
-    fs.rmSync(CONFIG.DIST.BASE, { recursive: true });
-  }
-}
-
-/**
- * Creates a development build of the extension for the specified distribution. This is done by copying the assets and the
- * manifest for that distribution to the dist folder.
- *
- * @param {string} distribution The distribution to make a dev build for
- */
-function makeDevBuild(distribution) {
-  prepareBuild();
-  copyAssetsTo(CONFIG.DIST.BASE);
-  fs.copyFileSync(CONFIG.MANIFEST[distribution], `${CONFIG.DIST.BASE}/manifest.json`);
-}
 
 /**
  * Gets the full release name and path for the specified distribution.
@@ -197,9 +144,6 @@ function main() {
       break;
     case OPTIONS.PUSH:
       pushRelease();
-      break;
-    case OPTIONS.BUILD:
-      prepareBuild();
       break;
   }
 }
