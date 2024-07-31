@@ -244,7 +244,7 @@ function main(): void {
   onUrlChange(() => cleanUp());
 }
 
-window.onunload = () => {
+window.onbeforeunload = () => {
   if (interval !== undefined) {
     clearInterval(interval);
   }
