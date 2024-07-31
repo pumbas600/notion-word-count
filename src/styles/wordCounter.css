@@ -2,8 +2,8 @@
   position: absolute;
   z-index: 2;
   padding: 8px 16px;
-  right: 80px;
-  bottom: 28px;
+  right: 70px;
+  bottom: 30px;
   white-space: nowrap;
   display: flex;
   align-items: center;
@@ -12,7 +12,6 @@
   border-radius: 3px;
   line-height: 14px;
   font-size: 14px;
-  box-shadow: rgba(15, 15, 15, 0.1) 0px 0px 0px 1px, rgba(15, 15, 15, 0.1) 0px 2px 4px;
   -webkit-user-select: none; /* Safari */
   -ms-user-select: none; /* IE 10 and IE 11 */
   user-select: none; /* Standard syntax */
