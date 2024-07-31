@@ -27,13 +27,24 @@ To watch for changes to the `css` or `ts` files, you can use:
 > [!NOTE]
 > This does not listen to changes in the manifest files or assets. If these change you will need to re-run the command.
 
+### Loading unpacked extensions
+
+**Chrome**
+- Go to `chrome://extensions/`.
+- Enable `Developer mode`.
+- Click `Load unpacked` and select the `dist` folder.
+
+**Firefox**
+- Go to `about:debugging#/runtime/this-firefox`.
+- Click `Load Temporary Add-on...` and select the `manifest.json` file in the `dist` folder.
+
 ## 🚀 Release
 
 You can make a new release of the extension by using one of the following commands:
 ```sh
 npm run release:patch
 npm run release:minor
-npm run release:majot
+npm run release:major
 ```
 
 Each does a respective version update, builds the code, and creates a release zip file for each of the distributions in the `release` folder. It then creates a commit with all the updated files and tags it with the new version before pushing it to GitHub.
