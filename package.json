@@ -1,6 +1,6 @@
 {
   "name": "notion-word-count",
-  "version": "0.0.1",
+  "version": "1.0.0",
   "description": "Display the word count in a notion page",
   "scripts": {
     "build:chrome": "webpack --env distribution=chromium",

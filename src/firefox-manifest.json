@@ -1,7 +1,7 @@
 {
   "manifest_version": 2,
   "name": "Notion Word Count",
-  "version": "0.0.1",
+  "version": "1.0.0",
   "description": "Adds a word count label to notion pages.",
   "icons": {
     "16": "assets/icon16.png",
