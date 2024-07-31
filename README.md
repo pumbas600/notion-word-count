@@ -1,6 +1,6 @@
 ![Notion Word Count](./images/notion-word-count-banner.png)
 
-This is a browser extension that adds a word count to the bottom right corner of the web version of Notion. Highlighting text will only show the word count for the selected text.
+This is a browser extension that adds a word count to the **bottom right corner** of the web version of [Notion](https://www.notion.so/). Highlighting text will only show the word count for the selected text.
 
 | Default | Selecting |
 | ------- | --------- |
